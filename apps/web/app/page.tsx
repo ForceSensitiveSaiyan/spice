@@ -7,6 +7,7 @@ import { getPantry, savePantry } from "@/lib/pantry";
 import { getFeedback, makeSignature } from "@/lib/feedback";
 import { generateChallenge } from "@/lib/challenges";
 import type { SuggestResponse, FlavourMode, SkillMode } from "@/lib/types";
+import { LOADING_MESSAGES } from "@/lib/loading-messages";
 
 import CookMode from "./components/CookMode";
 import UpgradeLadderUI from "./components/UpgradeLadderUI";
@@ -90,6 +91,17 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [cookModeActive, setCookModeActive] = useState(false);
   const resultHeadingRef = useRef<HTMLHeadingElement>(null);
+
+  // Loading message rotation
+  const [loadingMsgIdx, setLoadingMsgIdx] = useState(0);
+  useEffect(() => {
+    if (!loading) return;
+    setLoadingMsgIdx(Math.floor(Math.random() * LOADING_MESSAGES.length));
+    const interval = setInterval(() => {
+      setLoadingMsgIdx((prev) => (prev + 1) % LOADING_MESSAGES.length);
+    }, 2000);
+    return () => clearInterval(interval);
+  }, [loading]);
 
   // Load pantry from localStorage
   useEffect(() => {
@@ -368,7 +380,7 @@ export default function Home() {
         disabled={loading}
         className="w-full bg-stone-800 dark:bg-stone-200 text-white dark:text-stone-900 py-3 rounded-lg font-medium hover:bg-stone-900 dark:hover:bg-stone-300 disabled:opacity-50 mb-8 transition-colors"
       >
-        {loading ? "Cooking up ideas..." : "What can I make?"}
+        {loading ? LOADING_MESSAGES[loadingMsgIdx] : "What can I make?"}
       </button>
 
       {/* Loading skeleton */}
