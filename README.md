@@ -1,74 +1,58 @@
 # SPICE – Smart Pantry Intelligence & Culinary Engine
 
-Tell SPICE what ingredients you have. It gives you a step-by-step meal plan with timing, optional upgrades, and a cheap-addition suggestion.
+Tell SPICE what ingredients you have. It gives you a step-by-step meal plan with timing, upgrade ladder, flavour reasoning, and a shareable card.
+
+## Features
+
+- **Flavour Personality Modes**: Bold & Spicy, Savoury & Umami, Comfort & Rich, Bright & Fresh, Clean & Light
+- **Upgrade Ladder**: Tiered suggestions — pantry upgrades, "if you have" gated additions, £1 shop add-ons
+- **Cook Mode**: Live timeline with timer, step highlighting, pause/reset
+- **Why This Works**: Expandable flavour logic in plain language
+- **Minimal Meal Rescue**: Even with 1 ingredient, get a viable plan + flavour hacks
+- **Pantry Memory**: Save "always available" items (localStorage) — used transparently
+- **Taste Feedback**: Rate results → future suggestions adapt
+- **Share Cards**: Download branded PNG with title, time, ingredient count
+- **Budget Challenge**: Random 3-ingredient, £3, 15-min challenge
+- **Dual Skill Mode**: Beginner (explicit) vs Confident (intuitive)
 
 ## Project structure
 
 ```
 apps/
   api/          FastAPI backend (Python)
-  web/          Next.js frontend (TypeScript)
+  web/          Next.js frontend (TypeScript + Tailwind)
 packages/
   shared/       Pydantic models + TypeScript types
 ```
 
 ## Quick start
 
-### Prerequisites
-
-- Python 3.12+
-- Node.js 20+
-- (Optional) OpenAI API key for AI-powered suggestions
-
-### API
-
-```bash
-cd apps/api
-pip install -r requirements.txt
-cp .env.example .env          # add your OPENAI_API_KEY (optional)
-
-# Run (from repo root):
-make api
-# or directly:
-PYTHONPATH="../../packages:." uvicorn spice.main:app --reload --port 5000
-```
-
-Without an `OPENAI_API_KEY`, the API returns mock responses – useful for frontend development.
-
-### Web
-
-```bash
-cd apps/web
-npm install
-cp .env.example .env.local
-
-# Run (from repo root):
-make web
-# or directly:
-npm run dev
-```
-
-Open [http://localhost:3737](http://localhost:3737).
-
-### Both at once
-
-```bash
-make dev
-```
-
 ### Docker Compose (recommended)
-
-The easiest way to run everything — no local Python/Node required:
 
 ```bash
 # Without OpenAI (mock responses):
 docker compose up --build
 
-# With OpenAI:
-OPENAI_API_KEY=sk-your-key docker compose up --build
+# With OpenAI — create .env in repo root:
+echo "OPENAI_API_KEY=sk-your-key" > .env
+docker compose up --build
 ```
 
-This starts the API on [localhost:5000](http://localhost:5000) and the web UI on [localhost:3737](http://localhost:3737). The web container automatically talks to the API container by service name.
+API: [localhost:5000](http://localhost:5000) | Web: [localhost:3737](http://localhost:3737)
+
+### Local dev
+
+```bash
+# API
+cd apps/api && pip install -r requirements.txt
+make api   # starts on :5000
+
+# Web
+cd apps/web && npm install
+make web   # starts on :3737
+```
+
+Without `OPENAI_API_KEY`, the API returns mock responses.
 
 ## API
 
@@ -83,12 +67,18 @@ This starts the API on [localhost:5000](http://localhost:5000) and the web UI on
     "diet": "vegetarian",
     "time_minutes": 15,
     "equipment": ["hob", "pan"],
-    "spice_level": "medium"
-  }
+    "spice_level": "medium",
+    "flavour_mode": "umami",
+    "skill_mode": "beginner"
+  },
+  "pantry_items": ["oil", "salt"],
+  "feedback_history": ["too_bland"]
 }
 ```
 
-**Response:** See `packages/shared/schemas.py` for the full schema. Includes: title, timed steps, upgrades (gated by missing ingredients), a cheap-addition suggestion, notes, and safety info.
+**Response:** Includes `title`, `prep_time_minutes`, `steps` (with `t_seconds` + `tip`), `why_this_works`, `upgrade_ladder` (pantry/if_you_have/one_pound_shop), `minimal_rescue`, `pantry_used`, `notes`, `safety`.
+
+See `packages/shared/schemas.py` for the full schema.
 
 ## Tests
 
@@ -97,6 +87,4 @@ cd apps/api
 PYTHONPATH="../../packages:." python -m pytest tests/ -v
 ```
 
-## Sample fixtures
-
-See `apps/api/fixtures/samples.json` for example ingredient sets you can POST to the API.
+13 tests covering: input validation, schema compliance, step ordering, upgrade gating (no hallucinated ingredients), minimal rescue, new request fields, JSON parsing robustness, feedback mapping.
