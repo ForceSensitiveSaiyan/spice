@@ -22,6 +22,7 @@ import SkeletonLoader from "./components/SkeletonLoader";
 const DIETS = ["any", "vegetarian", "vegan", "pescatarian"];
 const SPICE_LEVELS = ["mild", "medium", "hot"];
 const EQUIPMENT_OPTIONS = ["hob", "oven", "microwave", "pan", "wok", "pot"];
+const TIME_OPTIONS = [15, 30, 45, 60];
 
 const FLAVOUR_MODES: { value: FlavourMode; label: string }[] = [
   { value: "bold_spicy", label: "Bold & Spicy" },
@@ -231,6 +232,14 @@ export default function Home() {
         >
           Budget Challenge
         </button>
+        {ingredients.length > 0 && (
+          <button
+            onClick={() => { setIngredients([]); setResult(null); }}
+            className="text-xs px-3 py-1.5 rounded-full border border-stone-300 dark:border-stone-600 text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
+          >
+            Clear
+          </button>
+        )}
       </div>
 
       {/* Ingredient input */}
@@ -303,14 +312,21 @@ export default function Home() {
         </div>
         <div>
           <label className="block text-sm font-medium mb-1">Time (minutes)</label>
-          <input
-            type="number"
-            min={5}
-            max={120}
-            value={timeMinutes}
-            onChange={(e) => setTimeMinutes(Number(e.target.value))}
-            className="w-full border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-800 rounded-lg px-3 py-2"
-          />
+          <div className="flex flex-wrap gap-2">
+            {TIME_OPTIONS.map((t) => (
+              <button
+                key={t}
+                onClick={() => setTimeMinutes(t)}
+                className={`text-xs px-3 py-1.5 rounded-full border transition-colors min-h-[36px] ${
+                  timeMinutes === t
+                    ? "bg-stone-800 dark:bg-stone-200 text-white dark:text-stone-900 border-stone-800 dark:border-stone-200"
+                    : "border-stone-300 dark:border-stone-600 text-stone-500 dark:text-stone-400"
+                }`}
+              >
+                {t} min
+              </button>
+            ))}
+          </div>
         </div>
         <div>
           <label className="block text-sm font-medium mb-1">Spice level</label>
