@@ -1,8 +1,9 @@
 "use client";
 
-import { useRef, useCallback } from "react";
+import { useRef, useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 import type { SuggestResponse } from "@/lib/types";
+import { saveRecipe } from "@/lib/recipes";
 
 interface Props {
   result: SuggestResponse;
@@ -11,23 +12,72 @@ interface Props {
 
 export default function ShareCard({ result, ingredientCount }: Props) {
   const cardRef = useRef<HTMLDivElement>(null);
+  const [cardDataUrl, setCardDataUrl] = useState<string | null>(null);
+  const [saved, setSaved] = useState(false);
+
+  // Generate PNG in background on mount
+  useEffect(() => {
+    let cancelled = false;
+    async function generate() {
+      if (!cardRef.current) return;
+      try {
+        const { toPng } = await import("html-to-image");
+        const url = await toPng(cardRef.current, { pixelRatio: 2 });
+        if (!cancelled) setCardDataUrl(url);
+      } catch {
+        // Silently fail — share button will show fallback
+      }
+    }
+    // Small delay to ensure the card is rendered
+    const timer = setTimeout(generate, 200);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [result]);
 
   const handleShare = useCallback(async () => {
-    if (!cardRef.current) return;
+    if (!cardDataUrl) return;
     try {
-      // Dynamic import to keep bundle light
-      const { toPng } = await import("html-to-image");
-      const dataUrl = await toPng(cardRef.current, { pixelRatio: 2 });
+      // Convert data URL to blob
+      const res = await fetch(cardDataUrl);
+      const blob = await res.blob();
+      const file = new File(
+        [blob],
+        `spice-${result.title.toLowerCase().replace(/\s+/g, "-")}.png`,
+        { type: "image/png" }
+      );
+
+      // Try native share (mobile)
+      if (navigator.share && navigator.canShare?.({ files: [file] })) {
+        await navigator.share({
+          title: result.title,
+          text: `Check out this recipe: ${result.title}`,
+          files: [file],
+        });
+        toast.success("Shared!");
+        return;
+      }
+
+      // Fallback: download
       const link = document.createElement("a");
-      link.download = `spice-${result.title.toLowerCase().replace(/\s+/g, "-")}.png`;
-      link.href = dataUrl;
+      link.download = file.name;
+      link.href = cardDataUrl;
       link.click();
       toast.success("Card downloaded!");
     } catch (err) {
-      console.error("Share card export failed:", err);
-      toast.error("Failed to export share card");
+      // User cancelled share dialog — not an error
+      if (err instanceof Error && err.name === "AbortError") return;
+      console.error("Share failed:", err);
+      toast.error("Failed to share");
     }
-  }, [result.title]);
+  }, [cardDataUrl, result.title]);
+
+  const handleSave = useCallback(() => {
+    saveRecipe(result, ingredientCount);
+    setSaved(true);
+    toast.success("Recipe saved!");
+  }, [result, ingredientCount]);
 
   return (
     <div>
@@ -64,12 +114,22 @@ export default function ShareCard({ result, ingredientCount }: Props) {
         </div>
       </div>
 
-      <button
-        onClick={handleShare}
-        className="w-full border border-stone-300 dark:border-stone-600 text-stone-600 dark:text-stone-300 py-2.5 rounded-lg font-medium hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
-      >
-        Share Card (download PNG)
-      </button>
+      <div className="flex gap-3">
+        <button
+          onClick={handleShare}
+          disabled={!cardDataUrl}
+          className="flex-1 border border-stone-300 dark:border-stone-600 text-stone-600 dark:text-stone-300 py-2.5 rounded-lg font-medium hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors disabled:opacity-50"
+        >
+          {cardDataUrl ? "Share" : "Generating..."}
+        </button>
+        <button
+          onClick={handleSave}
+          disabled={saved}
+          className="flex-1 border border-stone-300 dark:border-stone-600 text-stone-600 dark:text-stone-300 py-2.5 rounded-lg font-medium hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors disabled:opacity-50"
+        >
+          {saved ? "Saved" : "Save"}
+        </button>
+      </div>
     </div>
   );
 }
