@@ -73,8 +73,18 @@ _DEFAULT_MOCK = SuggestResponse(
 )
 
 
+def _use_openai() -> bool:
+    return bool(os.environ.get("OPENAI_API_KEY"))
+
+
 async def get_suggestion(req: SuggestRequest) -> SuggestResponse:
-    """Return a meal suggestion. Currently uses mock data; will be replaced with OpenAI."""
+    """Return a meal suggestion. Uses OpenAI if API key is set, otherwise mock data."""
+    if _use_openai():
+        from spice.openai_service import generate_suggestion
+
+        return await generate_suggestion(req)
+
+    # Fallback: mock data for development
     for key, response in _MOCK_RESPONSES.items():
         if key in req.ingredients:
             return response
