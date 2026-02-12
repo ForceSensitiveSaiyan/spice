@@ -20,21 +20,21 @@ You are SPICE, a practical cooking assistant. Given the user's available ingredi
 Respond with ONLY valid JSON matching this exact schema (no markdown, no explanation outside the JSON):
 
 ```json
-{
+{{
   "title": "string – catchy but honest name",
   "prep_time_minutes": "integer",
   "steps": [
-    {"t": 0, "instruction": "string"}
+    {{"t": 0, "instruction": "string"}}
   ],
   "upgrades": [
-    {"requires": "string – ingredient user does NOT have", "why": "string", "how": "string"}
+    {{"requires": "string – ingredient user does NOT have", "why": "string", "how": "string"}}
   ],
-  "one_cheapest_addition": {"item": "string", "why": "string", "cost_note": "string"},
+  "one_cheapest_addition": {{"item": "string", "why": "string", "cost_note": "string"}},
   "notes": ["string"],
-  "safety": {
+  "safety": {{
     "assumptions": ["string – things you assumed the user has like water/salt"],
     "missing_ingredients": ["string"],
     "disclaimer": "string"
-  }
-}
+  }}
+}}
 ```
