@@ -157,3 +157,62 @@ def test_feedback_guidance_mapping():
     assert "too_bland" in _FEEDBACK_GUIDANCE
     assert "needs_spice" in _FEEDBACK_GUIDANCE
     assert "perfect" in _FEEDBACK_GUIDANCE
+
+
+# ── Health endpoint ──────────────────────────────────────────────
+
+def test_health_returns_ok():
+    """GET /health should return 200 with status field."""
+    res = client.get("/health")
+    assert res.status_code == 200
+    data = res.json()
+    assert data["status"] == "ok"
+    assert "version" in data
+
+
+# ── CORS headers ─────────────────────────────────────────────────
+
+def test_cors_headers_present():
+    """OPTIONS preflight should return CORS headers for allowed origin."""
+    res = client.options(
+        "/v1/suggest",
+        headers={
+            "Origin": "http://localhost:3737",
+            "Access-Control-Request-Method": "POST",
+        },
+    )
+    assert res.headers.get("access-control-allow-origin") == "http://localhost:3737"
+
+
+# ── Edge cases ───────────────────────────────────────────────────
+
+def test_oversized_ingredients_list():
+    """100+ ingredients should still return a valid response (no crash)."""
+    ingredients = [f"item_{i}" for i in range(100)]
+    res = client.post("/v1/suggest", json={"ingredients": ingredients})
+    assert res.status_code == 200
+    SuggestResponse.model_validate(res.json())
+
+
+def test_special_characters_in_ingredients():
+    """Input with special characters should not cause errors."""
+    res = client.post("/v1/suggest", json={
+        "ingredients": ["<script>alert(1)</script>", "onion & garlic"],
+    })
+    assert res.status_code == 200
+    data = res.json()
+    SuggestResponse.model_validate(data)
+
+
+def test_concurrent_requests():
+    """Multiple parallel requests should all succeed."""
+    import concurrent.futures
+
+    def make_request():
+        return client.post("/v1/suggest", json={"ingredients": ["rice", "egg"]})
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=5) as pool:
+        futures = [pool.submit(make_request) for _ in range(5)]
+        results = [f.result() for f in futures]
+
+    assert all(r.status_code == 200 for r in results)
