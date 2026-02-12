@@ -66,7 +66,7 @@ export default function CookMode({ steps }: { steps: Step[] }) {
       {/* Timer header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
         <div className="flex items-center gap-3">
-          <span className="text-2xl font-mono font-bold text-amber-600 dark:text-amber-400">
+          <span role="timer" aria-label={`Elapsed time: ${fmtTime(elapsed)}`} className="text-2xl font-mono font-bold text-amber-600 dark:text-amber-400">
             {fmtTime(elapsed)}
           </span>
           <span className="text-sm text-stone-400 dark:text-stone-500">/ {fmtTime(totalTime)}</span>

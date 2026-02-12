@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { fetchSuggestion } from "@/lib/api";
 import { getPantry, savePantry } from "@/lib/pantry";
@@ -83,6 +83,7 @@ export default function Home() {
   // Result
   const [result, setResult] = useState<SuggestResponse | null>(null);
   const [loading, setLoading] = useState(false);
+  const resultHeadingRef = useRef<HTMLHeadingElement>(null);
 
   // Load pantry from localStorage
   useEffect(() => {
@@ -161,6 +162,8 @@ export default function Home() {
         feedback_history: feedbackHistory,
       });
       setResult(res);
+      // Focus result heading for screen readers
+      setTimeout(() => resultHeadingRef.current?.focus(), 100);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Something went wrong");
     } finally {
@@ -172,6 +175,14 @@ export default function Home() {
 
   return (
     <main className="max-w-2xl mx-auto px-4 py-10">
+      {/* Skip link */}
+      <a
+        href="#results"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 bg-amber-500 text-white px-3 py-2 rounded-lg"
+      >
+        Skip to results
+      </a>
+
       {/* Header */}
       <div className="flex items-center justify-between mb-1">
         <h1 className="text-3xl font-bold">SPICE</h1>
@@ -431,11 +442,12 @@ export default function Home() {
       {loading && <SkeletonLoader />}
 
       {/* ── Result ──────────────────────────────────────────────── */}
+      <div id="results" aria-live="polite">
       {result && (
         <div className="space-y-6">
           {/* Header with badges */}
           <div className="animate-fade-in-up">
-            <h2 className="text-2xl font-bold">{result.title}</h2>
+            <h2 ref={resultHeadingRef} tabIndex={-1} className="text-2xl font-bold outline-none">{result.title}</h2>
             <div className="flex flex-wrap gap-2 mt-2">
               <span className="text-xs bg-stone-200 dark:bg-stone-700 text-stone-600 dark:text-stone-300 px-2 py-0.5 rounded-full">
                 ~{result.prep_time_minutes} min
@@ -548,6 +560,7 @@ export default function Home() {
           </div>
         </div>
       )}
+      </div>
     </main>
   );
 }
