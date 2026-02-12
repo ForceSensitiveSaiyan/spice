@@ -1,5 +1,6 @@
 """API routes for SPICE."""
 
+import asyncio
 import logging
 import sys
 import os
@@ -8,6 +9,7 @@ import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "..", "packages"))
 
 from fastapi import APIRouter, HTTPException
+from pydantic import ValidationError
 from shared.schemas import SuggestRequest, SuggestResponse
 
 from spice.suggest import get_suggestion
@@ -20,6 +22,15 @@ router = APIRouter()
 async def suggest(req: SuggestRequest) -> SuggestResponse:
     try:
         return await get_suggestion(req)
-    except Exception as exc:
+    except ValidationError:
+        logger.exception("Validation error in suggestion response")
+        raise HTTPException(status_code=422, detail="Invalid response from suggestion engine")
+    except RuntimeError as exc:
+        logger.exception("Configuration error")
+        raise HTTPException(status_code=503, detail="Service temporarily unavailable")
+    except asyncio.TimeoutError:
+        logger.exception("Suggestion timed out")
+        raise HTTPException(status_code=504, detail="Suggestion generation timed out")
+    except Exception:
         logger.exception("Suggestion failed")
-        raise HTTPException(status_code=502, detail=f"Suggestion generation failed: {exc}")
+        raise HTTPException(status_code=500, detail="Internal server error")

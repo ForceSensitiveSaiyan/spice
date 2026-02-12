@@ -7,7 +7,14 @@ services:
       - "5000:5000"
     environment:
       - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - CORS_ORIGINS=http://localhost:3737,http://web:3737
       - LOG_LEVEL=info
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
     volumes:
       - ./apps/api/spice:/app/spice
       - ./packages:/packages
@@ -21,4 +28,6 @@ services:
     environment:
       - NEXT_PUBLIC_API_URL=http://api:5000
     depends_on:
-      - api
+      api:
+        condition: service_healthy
+    restart: unless-stopped
