@@ -30,7 +30,7 @@ cp .env.example .env          # add your OPENAI_API_KEY (optional)
 # Run (from repo root):
 make api
 # or directly:
-PYTHONPATH="../../packages:." uvicorn spice.main:app --reload --port 8000
+PYTHONPATH="../../packages:." uvicorn spice.main:app --reload --port 5000
 ```
 
 Without an `OPENAI_API_KEY`, the API returns mock responses – useful for frontend development.
@@ -56,11 +56,19 @@ Open [http://localhost:3000](http://localhost:3000).
 make dev
 ```
 
-### Docker Compose
+### Docker Compose (recommended)
+
+The easiest way to run everything — no local Python/Node required:
 
 ```bash
+# Without OpenAI (mock responses):
 docker compose up --build
+
+# With OpenAI:
+OPENAI_API_KEY=sk-your-key docker compose up --build
 ```
+
+This starts the API on [localhost:5000](http://localhost:5000) and the web UI on [localhost:3000](http://localhost:3000). The web container automatically talks to the API container by service name.
 
 ## API
 

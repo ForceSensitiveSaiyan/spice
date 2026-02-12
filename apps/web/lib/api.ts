@@ -1,6 +1,6 @@
 import type { SuggestRequest, SuggestResponse } from "./types";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
 export async function fetchSuggestion(req: SuggestRequest): Promise<SuggestResponse> {
   const res = await fetch(`${API_URL}/v1/suggest`, {

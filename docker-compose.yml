@@ -1,19 +1,24 @@
 services:
   api:
-    build: ./apps/api
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
     ports:
-      - "8000:8000"
-    env_file:
-      - ./apps/api/.env
+      - "5000:5000"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - LOG_LEVEL=info
     volumes:
-      - ./apps/api:/app
+      - ./apps/api/spice:/app/spice
       - ./packages:/packages
 
   web:
-    build: ./apps/web
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
     ports:
       - "3000:3000"
-    env_file:
-      - ./apps/web/.env
+    environment:
+      - NEXT_PUBLIC_API_URL=http://api:5000
     depends_on:
       - api
