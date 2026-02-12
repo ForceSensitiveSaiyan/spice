@@ -191,7 +191,9 @@ export default function Home() {
 
       {/* Header */}
       <div className="flex items-center justify-between mb-1">
-        <h1 className="text-3xl font-bold">SPICE</h1>
+        <h1 className="text-3xl font-bold">
+          SP<span className="text-amber-600 dark:text-amber-400" style={{ fontSize: '110%', lineHeight: 1 }}>I</span>CE
+        </h1>
         <div className="flex items-center gap-2">
           <button
             onClick={() => setSettingsOpen(true)}
@@ -512,6 +514,18 @@ export default function Home() {
         skillMode={skillMode}
         onSkillModeChange={setSkillMode}
       />
+
+      <footer className="mt-12 py-6 text-center text-sm text-stone-400 dark:text-stone-500">
+        SPICE by{" "}
+        <a
+          href="https://aidoo.biz"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline hover:text-stone-600 dark:hover:text-stone-300 transition-colors"
+        >
+          ai.doo
+        </a>
+      </footer>
     </main>
   );
 }
