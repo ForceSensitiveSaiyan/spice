@@ -161,6 +161,7 @@ export default function Home() {
     }
     setLoading(true);
     setResult(null);
+    setCookModeActive(false);
 
     const sig = makeSignature(ingredients, flavourMode);
     const feedbackHistory = getFeedback(sig);

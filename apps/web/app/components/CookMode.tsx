@@ -53,6 +53,15 @@ export default function CookMode({ steps, active, onActiveChange }: CookModeProp
     interval.current = null;
   }, []);
 
+  // Reset state when cook mode is activated
+  useEffect(() => {
+    if (active) {
+      setElapsed(0);
+      setPaused(false);
+      prevStepIdx.current = 0;
+    }
+  }, [active]);
+
   useEffect(() => {
     if (active && !paused) {
       interval.current = setInterval(() => {
@@ -179,7 +188,7 @@ export default function CookMode({ steps, active, onActiveChange }: CookModeProp
             }}
             className="text-sm px-3 py-1.5 rounded-lg border border-stone-300 dark:border-stone-600 hover:bg-stone-100 dark:hover:bg-stone-700 min-h-[36px]"
           >
-            Reset
+            Stop
           </button>
         </div>
       </div>
