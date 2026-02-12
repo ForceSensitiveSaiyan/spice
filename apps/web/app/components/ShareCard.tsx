@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useCallback } from "react";
+import { toast } from "sonner";
 import type { SuggestResponse } from "@/lib/types";
 
 interface Props {
@@ -21,8 +22,10 @@ export default function ShareCard({ result, ingredientCount }: Props) {
       link.download = `spice-${result.title.toLowerCase().replace(/\s+/g, "-")}.png`;
       link.href = dataUrl;
       link.click();
+      toast.success("Card downloaded!");
     } catch (err) {
       console.error("Share card export failed:", err);
+      toast.error("Failed to export share card");
     }
   }, [result.title]);
 

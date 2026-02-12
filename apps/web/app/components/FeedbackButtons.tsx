@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "sonner";
 import type { FeedbackType } from "@/lib/types";
 import { saveFeedback } from "@/lib/feedback";
 
@@ -16,16 +17,9 @@ interface Props {
 }
 
 export default function FeedbackButtons({ signature }: Props) {
-  const [submitted, setSubmitted] = useState<FeedbackType | null>(null);
+  const [submitted, setSubmitted] = useState(false);
 
-  if (submitted) {
-    return (
-      <p className="text-sm text-stone-500 dark:text-stone-400">
-        Noted: <span className="font-medium">{OPTIONS.find((o) => o.value === submitted)?.label}</span>.
-        We&apos;ll adjust next time.
-      </p>
-    );
-  }
+  if (submitted) return null;
 
   return (
     <div>
@@ -36,7 +30,8 @@ export default function FeedbackButtons({ signature }: Props) {
             key={opt.value}
             onClick={() => {
               saveFeedback(signature, opt.value);
-              setSubmitted(opt.value);
+              setSubmitted(true);
+              toast.success(`Noted: ${opt.label}. We'll adjust next time.`);
             }}
             className="text-sm px-3 py-1.5 rounded-full border border-stone-300 dark:border-stone-600 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
           >

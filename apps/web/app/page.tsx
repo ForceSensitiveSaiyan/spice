@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { toast } from "sonner";
 import { fetchSuggestion } from "@/lib/api";
 import { getPantry, savePantry } from "@/lib/pantry";
 import { getFeedback, makeSignature } from "@/lib/feedback";
@@ -82,7 +83,6 @@ export default function Home() {
   // Result
   const [result, setResult] = useState<SuggestResponse | null>(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
 
   // Load pantry from localStorage
   useEffect(() => {
@@ -137,10 +137,9 @@ export default function Home() {
 
   async function handleSubmit() {
     if (ingredients.length === 0) {
-      setError("Add at least one ingredient.");
+      toast.error("Add at least one ingredient.");
       return;
     }
-    setError("");
     setLoading(true);
     setResult(null);
 
@@ -163,7 +162,7 @@ export default function Home() {
       });
       setResult(res);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Something went wrong");
+      toast.error(e instanceof Error ? e.message : "Something went wrong");
     } finally {
       setLoading(false);
     }
@@ -427,8 +426,6 @@ export default function Home() {
       >
         {loading ? "Cooking up ideas..." : "What can I make?"}
       </button>
-
-      {error && <p className="text-red-600 dark:text-red-400 mb-4">{error}</p>}
 
       {/* Loading skeleton */}
       {loading && <SkeletonLoader />}
