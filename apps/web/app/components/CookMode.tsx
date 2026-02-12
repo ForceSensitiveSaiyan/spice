@@ -9,13 +9,39 @@ function fmtTime(s: number): string {
   return `${m}:${sec.toString().padStart(2, "0")}`;
 }
 
+function playDing() {
+  try {
+    const ctx = new AudioContext();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = "sine";
+    osc.frequency.value = 800;
+    gain.gain.value = 0.3;
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
+    osc.stop(ctx.currentTime + 0.15);
+  } catch {
+    // Audio not available — silently ignore
+  }
+}
+
 export default function CookMode({ steps }: { steps: Step[] }) {
   const [active, setActive] = useState(false);
   const [elapsed, setElapsed] = useState(0);
   const [paused, setPaused] = useState(false);
+  const [muted, setMuted] = useState(true);
+  const [largeText, setLargeText] = useState(false);
   const interval = useRef<ReturnType<typeof setInterval> | null>(null);
+  const prevStepIdx = useRef(0);
 
   const totalTime = steps.length > 0 ? steps[steps.length - 1].t_seconds + 60 : 0;
+
+  // Load large text preference
+  useEffect(() => {
+    setLargeText(localStorage.getItem("spice-large-text") === "true");
+  }, []);
 
   const stop = useCallback(() => {
     if (interval.current) clearInterval(interval.current);
@@ -48,6 +74,28 @@ export default function CookMode({ steps }: { steps: Step[] }) {
     }
   }
 
+  // Play ding on step change
+  useEffect(() => {
+    if (active && !muted && currentIdx !== prevStepIdx.current) {
+      playDing();
+    }
+    prevStepIdx.current = currentIdx;
+  }, [currentIdx, active, muted]);
+
+  function skipToNextStep() {
+    if (currentIdx < steps.length - 1) {
+      setElapsed(steps[currentIdx + 1].t_seconds);
+    }
+  }
+
+  function toggleLargeText() {
+    const next = !largeText;
+    setLargeText(next);
+    localStorage.setItem("spice-large-text", String(next));
+  }
+
+  const textSize = largeText ? "text-base sm:text-lg" : "text-sm";
+
   if (!active) {
     return (
       <button
@@ -70,8 +118,45 @@ export default function CookMode({ steps }: { steps: Step[] }) {
             {fmtTime(elapsed)}
           </span>
           <span className="text-sm text-stone-400 dark:text-stone-500">/ {fmtTime(totalTime)}</span>
+          <span className="text-xs text-stone-400 dark:text-stone-500 font-medium">
+            Step {currentIdx + 1}/{steps.length}
+          </span>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
+          {/* Audio toggle */}
+          <button
+            onClick={() => setMuted(!muted)}
+            aria-label={muted ? "Unmute step notifications" : "Mute step notifications"}
+            className="text-sm px-2 py-1.5 rounded-lg border border-stone-300 dark:border-stone-600 hover:bg-stone-100 dark:hover:bg-stone-700 min-h-[36px]"
+          >
+            {muted ? (
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
+              </svg>
+            ) : (
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15.536 8.464a5 5 0 010 7.072M18.364 5.636a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+              </svg>
+            )}
+          </button>
+          {/* Large text toggle */}
+          <button
+            onClick={toggleLargeText}
+            aria-label={largeText ? "Normal text size" : "Large text size"}
+            className="text-sm px-2 py-1.5 rounded-lg border border-stone-300 dark:border-stone-600 hover:bg-stone-100 dark:hover:bg-stone-700 min-h-[36px] font-bold"
+          >
+            {largeText ? "A" : "A+"}
+          </button>
+          {/* Skip */}
+          {!done && currentIdx < steps.length - 1 && (
+            <button
+              onClick={skipToNextStep}
+              className="text-sm px-3 py-1.5 rounded-lg border border-stone-300 dark:border-stone-600 hover:bg-stone-100 dark:hover:bg-stone-700 min-h-[36px]"
+            >
+              Skip
+            </button>
+          )}
           {!done && (
             <button
               onClick={() => setPaused(!paused)}
@@ -118,15 +203,15 @@ export default function CookMode({ steps }: { steps: Step[] }) {
                   : ""
               }`}
             >
-              <span className="font-mono text-sm min-w-[3.5rem] text-amber-600 dark:text-amber-400 pt-0.5">
+              <span className={`font-mono min-w-[3.5rem] text-amber-600 dark:text-amber-400 pt-0.5 ${textSize}`}>
                 {fmtTime(step.t_seconds)}
               </span>
               <div className="flex-1">
-                <span className={isCurrent ? "font-medium" : ""}>
+                <span className={`${isCurrent ? "font-medium" : ""} ${textSize}`}>
                   {step.instruction}
                 </span>
                 {step.tip && (
-                  <p className="text-xs text-stone-400 dark:text-stone-500 mt-0.5">{step.tip}</p>
+                  <p className={`text-stone-400 dark:text-stone-500 mt-0.5 ${largeText ? "text-sm" : "text-xs"}`}>{step.tip}</p>
                 )}
               </div>
               {isCurrent && (
