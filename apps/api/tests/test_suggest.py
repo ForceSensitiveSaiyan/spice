@@ -159,6 +159,27 @@ def test_feedback_guidance_mapping():
     assert "perfect" in _FEEDBACK_GUIDANCE
 
 
+# ── Calorie estimates ────────────────────────────────────────────
+
+def test_response_includes_calories_estimate():
+    """Mock responses should include calorie estimates."""
+    res = client.post("/v1/suggest", json={"ingredients": ["maggi noodles", "onion"]})
+    assert res.status_code == 200
+    data = res.json()
+    assert "calories_estimate" in data
+    assert isinstance(data["calories_estimate"], int)
+    assert data["calories_estimate"] > 0
+
+
+def test_schema_validates_with_calories():
+    """SuggestResponse should accept calories_estimate field."""
+    res = client.post("/v1/suggest", json={"ingredients": ["rice", "egg", "soy sauce", "garlic"]})
+    assert res.status_code == 200
+    parsed = SuggestResponse.model_validate(res.json())
+    assert parsed.calories_estimate is not None
+    assert parsed.calories_estimate > 0
+
+
 # ── Health endpoint ──────────────────────────────────────────────
 
 def test_health_returns_ok():
