@@ -47,7 +47,7 @@ function fmtTime(s: number): string {
 // ── Dark mode hook ──────────────────────────────────────────────
 
 function useDarkMode() {
-  const [dark, setDark] = useState(false);
+  const [dark, setDark] = useState(true);
 
   useEffect(() => {
     setDark(document.documentElement.classList.contains("dark"));
