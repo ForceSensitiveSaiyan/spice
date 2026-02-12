@@ -48,7 +48,7 @@ make web
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+Open [http://localhost:3737](http://localhost:3737).
 
 ### Both at once
 
@@ -68,7 +68,7 @@ docker compose up --build
 OPENAI_API_KEY=sk-your-key docker compose up --build
 ```
 
-This starts the API on [localhost:5000](http://localhost:5000) and the web UI on [localhost:3000](http://localhost:3000). The web container automatically talks to the API container by service name.
+This starts the API on [localhost:5000](http://localhost:5000) and the web UI on [localhost:3737](http://localhost:3737). The web container automatically talks to the API container by service name.
 
 ## API
 

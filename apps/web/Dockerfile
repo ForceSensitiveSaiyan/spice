@@ -9,5 +9,5 @@ COPY apps/web/ .
 ENV NEXT_PUBLIC_API_URL=http://localhost:5000
 RUN npm run build
 
-EXPOSE 3000
-CMD ["npm", "start"]
+EXPOSE 3737
+CMD ["npm", "start", "--", "--port", "3737"]
