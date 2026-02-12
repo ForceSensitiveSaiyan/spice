@@ -87,6 +87,7 @@ export default function Home() {
   // Result
   const [result, setResult] = useState<SuggestResponse | null>(null);
   const [loading, setLoading] = useState(false);
+  const [cookModeActive, setCookModeActive] = useState(false);
   const resultHeadingRef = useRef<HTMLHeadingElement>(null);
 
   // Load pantry from localStorage
@@ -415,42 +416,34 @@ export default function Home() {
 
           {/* Cook Mode */}
           <div className="animate-fade-in-up animate-delay-2">
-            <CookMode steps={result.steps} />
+            <CookMode steps={result.steps} active={cookModeActive} onActiveChange={setCookModeActive} />
           </div>
 
-          {/* Static steps (visible when cook mode is not started) */}
-          <div className="animate-fade-in-up animate-delay-3">
-            <h3 className="font-semibold mb-2">Steps</h3>
-            <ol className="space-y-2">
-              {result.steps.map((step, i) => (
-                <li key={i} className="flex gap-3">
-                  <span className="text-amber-600 dark:text-amber-400 font-mono text-sm min-w-[3.5rem]">
-                    {fmtTime(step.t_seconds)}
-                  </span>
-                  <div>
-                    <span>{step.instruction}</span>
-                    {step.tip && (
-                      <p className="text-xs text-stone-400 dark:text-stone-500 mt-0.5">{step.tip}</p>
-                    )}
-                  </div>
-                </li>
-              ))}
-            </ol>
-          </div>
-
-          {/* Upgrade Ladder */}
-          <div className="animate-fade-in-up animate-delay-4">
-            <UpgradeLadderUI ladder={result.upgrade_ladder} />
-          </div>
-
-          {/* Why This Works */}
-          <div className="animate-fade-in-up animate-delay-5">
-            <WhyThisWorks reasons={result.why_this_works} />
-          </div>
+          {/* Static steps (hidden when cook mode is active) */}
+          {!cookModeActive && (
+            <div className="animate-fade-in-up animate-delay-3">
+              <h3 className="font-semibold mb-2">Steps</h3>
+              <ol className="space-y-2">
+                {result.steps.map((step, i) => (
+                  <li key={i} className="flex gap-3">
+                    <span className="text-amber-600 dark:text-amber-400 font-mono text-sm min-w-[3.5rem]">
+                      {fmtTime(step.t_seconds)}
+                    </span>
+                    <div>
+                      <span>{step.instruction}</span>
+                      {step.tip && (
+                        <p className="text-xs text-stone-400 dark:text-stone-500 mt-0.5">{step.tip}</p>
+                      )}
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          )}
 
           {/* Notes */}
           {result.notes.length > 0 && (
-            <div>
+            <div className="animate-fade-in-up animate-delay-3">
               <h3 className="font-semibold mb-2">Notes</h3>
               <ul className="list-disc list-inside space-y-1 text-stone-600 dark:text-stone-400 text-sm">
                 {result.notes.map((n, i) => (
@@ -459,6 +452,16 @@ export default function Home() {
               </ul>
             </div>
           )}
+
+          {/* Why This Works */}
+          <div className="animate-fade-in-up animate-delay-4">
+            <WhyThisWorks reasons={result.why_this_works} />
+          </div>
+
+          {/* Upgrade Ladder */}
+          <div className="animate-fade-in-up animate-delay-5">
+            <UpgradeLadderUI ladder={result.upgrade_ladder} />
+          </div>
 
           {/* Safety */}
           {result.safety.missing_ingredients.length > 0 && (

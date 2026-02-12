@@ -27,8 +27,13 @@ function playDing() {
   }
 }
 
-export default function CookMode({ steps }: { steps: Step[] }) {
-  const [active, setActive] = useState(false);
+interface CookModeProps {
+  steps: Step[];
+  active: boolean;
+  onActiveChange: (active: boolean) => void;
+}
+
+export default function CookMode({ steps, active, onActiveChange }: CookModeProps) {
   const [elapsed, setElapsed] = useState(0);
   const [paused, setPaused] = useState(false);
   const [muted, setMuted] = useState(true);
@@ -99,7 +104,7 @@ export default function CookMode({ steps }: { steps: Step[] }) {
   if (!active) {
     return (
       <button
-        onClick={() => setActive(true)}
+        onClick={() => onActiveChange(true)}
         className="w-full border-2 border-dashed border-amber-400 dark:border-amber-500 text-amber-700 dark:text-amber-400 py-3 rounded-lg font-medium hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors"
       >
         Start Cooking Mode
@@ -168,7 +173,7 @@ export default function CookMode({ steps }: { steps: Step[] }) {
           <button
             onClick={() => {
               stop();
-              setActive(false);
+              onActiveChange(false);
               setElapsed(0);
               setPaused(false);
             }}
