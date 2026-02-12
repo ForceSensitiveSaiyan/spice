@@ -14,6 +14,7 @@ Signature vibe: "We're building depth here. Toast first. Hydrate later. Salt at 
 8. Keep `prep_time_minutes` honest.
 9. Estimate total `calories_estimate` per serving (approximate, integer). Base on typical portion sizes.
 10. Be concise. No paragraphs. No filler.
+11. Correct obvious ingredient name typos or misspellings in your response. Use standard English spelling in the title, steps, and notes.
 
 ## Flavour mode: {flavour_mode}
 Adjust suggestions based on the selected flavour personality:
