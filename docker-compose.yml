@@ -3,11 +3,11 @@ services:
     build:
       context: .
       dockerfile: apps/api/Dockerfile
-    ports:
-      - "5000:5000"
+    expose:
+      - "5000"
     environment:
       - OPENAI_API_KEY=${OPENAI_API_KEY:-}
-      - CORS_ORIGINS=http://localhost:3737,http://web:3737
+      - CORS_ORIGINS=*
       - LOG_LEVEL=info
     restart: unless-stopped
     healthcheck:
@@ -26,7 +26,7 @@ services:
     ports:
       - "3737:3737"
     environment:
-      - NEXT_PUBLIC_API_URL=http://api:5000
+      - API_URL=http://api:5000
     depends_on:
       api:
         condition: service_healthy
