@@ -1,8 +1,3 @@
-"use client";
-
-import { useState, useEffect } from "react";
-import { LOADING_MESSAGES } from "@/lib/loading-messages";
-
 function Pulse({ className }: { className?: string }) {
   return (
     <div
@@ -12,25 +7,8 @@ function Pulse({ className }: { className?: string }) {
 }
 
 export default function SkeletonLoader() {
-  const [msgIdx, setMsgIdx] = useState(0);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setMsgIdx((prev) => (prev + 1) % LOADING_MESSAGES.length);
-    }, 2000);
-    return () => clearInterval(interval);
-  }, []);
-
   return (
     <div role="status" className="space-y-6 py-2">
-      {/* Fun loading message */}
-      <p
-        key={msgIdx}
-        className="text-center text-amber-600 dark:text-amber-400 font-medium animate-fade-in-up"
-      >
-        {LOADING_MESSAGES[msgIdx]}
-      </p>
-
       {/* Title */}
       <div>
         <Pulse className="h-7 w-2/3 mb-3" />
