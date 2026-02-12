@@ -64,7 +64,7 @@ export default function CookMode({ steps }: { steps: Step[] }) {
   return (
     <div className="border border-stone-200 dark:border-stone-700 rounded-xl p-4 bg-white dark:bg-surface-dark-card">
       {/* Timer header */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
         <div className="flex items-center gap-3">
           <span className="text-2xl font-mono font-bold text-amber-600 dark:text-amber-400">
             {fmtTime(elapsed)}
@@ -75,7 +75,7 @@ export default function CookMode({ steps }: { steps: Step[] }) {
           {!done && (
             <button
               onClick={() => setPaused(!paused)}
-              className="text-sm px-3 py-1 rounded-lg border border-stone-300 dark:border-stone-600 hover:bg-stone-100 dark:hover:bg-stone-700"
+              className="text-sm px-3 py-1.5 rounded-lg border border-stone-300 dark:border-stone-600 hover:bg-stone-100 dark:hover:bg-stone-700 min-h-[36px]"
             >
               {paused ? "Resume" : "Pause"}
             </button>
@@ -87,7 +87,7 @@ export default function CookMode({ steps }: { steps: Step[] }) {
               setElapsed(0);
               setPaused(false);
             }}
-            className="text-sm px-3 py-1 rounded-lg border border-stone-300 dark:border-stone-600 hover:bg-stone-100 dark:hover:bg-stone-700"
+            className="text-sm px-3 py-1.5 rounded-lg border border-stone-300 dark:border-stone-600 hover:bg-stone-100 dark:hover:bg-stone-700 min-h-[36px]"
           >
             Reset
           </button>

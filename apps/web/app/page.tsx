@@ -251,56 +251,70 @@ export default function Home() {
       <section className="mb-6">
         <button
           onClick={() => setShowPantry(!showPantry)}
-          className="text-sm text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200 transition-colors"
+          aria-expanded={showPantry}
+          className="text-sm text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200 transition-colors min-h-[44px] flex items-center"
         >
           Pantry staples ({pantry.length}){" "}
-          <span className="text-xs">{showPantry ? "hide" : "edit"}</span>
+          <svg
+            className={`w-3 h-3 ml-1 transition-transform duration-200 ${showPantry ? "rotate-180" : ""}`}
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+          </svg>
         </button>
-        {showPantry && (
-          <div className="mt-2 p-3 bg-surface-alt dark:bg-surface-dark-alt rounded-lg border border-stone-200 dark:border-stone-700">
-            <div className="flex gap-2 mb-2">
-              <input
-                className="flex-1 border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-800 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
-                placeholder="e.g. oil, salt, soy sauce"
-                value={pantryInput}
-                onChange={(e) => setPantryInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    addPantryItem();
-                  }
-                }}
-              />
-              <button
-                onClick={addPantryItem}
-                className="text-sm bg-stone-700 dark:bg-stone-600 text-white px-3 py-1.5 rounded-lg hover:bg-stone-800 dark:hover:bg-stone-500 transition-colors"
-              >
-                Add
-              </button>
-            </div>
-            <div className="flex flex-wrap gap-1.5">
-              {pantry.map((item) => (
-                <span
-                  key={item}
-                  className="bg-stone-200 dark:bg-stone-700 text-stone-700 dark:text-stone-300 px-2 py-0.5 rounded-full text-xs flex items-center gap-1"
+        <div
+          className="grid transition-[grid-template-rows] duration-200 ease-out"
+          style={{ gridTemplateRows: showPantry ? "1fr" : "0fr" }}
+        >
+          <div className="overflow-hidden">
+            <div className="mt-2 p-3 bg-surface-alt dark:bg-surface-dark-alt rounded-lg border border-stone-200 dark:border-stone-700">
+              <div className="flex gap-2 mb-2">
+                <input
+                  className="flex-1 border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-800 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  placeholder="e.g. oil, salt, soy sauce"
+                  value={pantryInput}
+                  onChange={(e) => setPantryInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      addPantryItem();
+                    }
+                  }}
+                />
+                <button
+                  onClick={addPantryItem}
+                  className="text-sm bg-stone-700 dark:bg-stone-600 text-white px-3 py-1.5 rounded-lg hover:bg-stone-800 dark:hover:bg-stone-500 transition-colors min-h-[44px]"
                 >
-                  {item}
-                  <button
-                    onClick={() => removePantryItem(item)}
-                    className="text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-100"
+                  Add
+                </button>
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {pantry.map((item) => (
+                  <span
+                    key={item}
+                    className="bg-stone-200 dark:bg-stone-700 text-stone-700 dark:text-stone-300 px-2 py-0.5 rounded-full text-xs flex items-center gap-1"
                   >
-                    &times;
-                  </button>
-                </span>
-              ))}
-              {pantry.length === 0 && (
-                <span className="text-xs text-stone-400 dark:text-stone-500">
-                  No pantry items yet. Add things you always have (oil, salt, etc.)
-                </span>
-              )}
+                    {item}
+                    <button
+                      onClick={() => removePantryItem(item)}
+                      className="text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-100 min-w-[20px] min-h-[20px] flex items-center justify-center"
+                    >
+                      &times;
+                    </button>
+                  </span>
+                ))}
+                {pantry.length === 0 && (
+                  <span className="text-xs text-stone-400 dark:text-stone-500">
+                    No pantry items yet. Add things you always have (oil, salt, etc.)
+                  </span>
+                )}
+              </div>
             </div>
           </div>
-        )}
+        </div>
       </section>
 
       {/* Flavour mode */}
@@ -324,7 +338,7 @@ export default function Home() {
       </section>
 
       {/* Constraints grid */}
-      <section className="mb-6 grid grid-cols-2 gap-4">
+      <section className="mb-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium mb-1">Diet</label>
           <select
@@ -367,7 +381,7 @@ export default function Home() {
               <button
                 key={eq}
                 onClick={() => toggleEquipment(eq)}
-                className={`text-xs px-2 py-1 rounded-full border transition-colors ${
+                className={`text-xs px-3 py-1.5 rounded-full border transition-colors min-h-[36px] ${
                   equipment.includes(eq)
                     ? "bg-stone-800 dark:bg-stone-200 text-white dark:text-stone-900 border-stone-800 dark:border-stone-200"
                     : "border-stone-300 dark:border-stone-600 text-stone-500 dark:text-stone-400"
