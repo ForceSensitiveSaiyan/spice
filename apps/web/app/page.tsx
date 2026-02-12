@@ -12,6 +12,7 @@ import UpgradeLadderUI from "./components/UpgradeLadderUI";
 import WhyThisWorks from "./components/WhyThisWorks";
 import FeedbackButtons from "./components/FeedbackButtons";
 import ShareCard from "./components/ShareCard";
+import SkeletonLoader from "./components/SkeletonLoader";
 
 // ── Constants ────────────────────────────────────────────────────
 
@@ -415,11 +416,14 @@ export default function Home() {
 
       {error && <p className="text-red-600 dark:text-red-400 mb-4">{error}</p>}
 
+      {/* Loading skeleton */}
+      {loading && <SkeletonLoader />}
+
       {/* ── Result ──────────────────────────────────────────────── */}
       {result && (
         <div className="space-y-6">
           {/* Header with badges */}
-          <div>
+          <div className="animate-fade-in-up">
             <h2 className="text-2xl font-bold">{result.title}</h2>
             <div className="flex flex-wrap gap-2 mt-2">
               <span className="text-xs bg-stone-200 dark:bg-stone-700 text-stone-600 dark:text-stone-300 px-2 py-0.5 rounded-full">
@@ -438,14 +442,14 @@ export default function Home() {
 
           {/* Pantry used */}
           {result.pantry_used.length > 0 && (
-            <p className="text-sm text-stone-500 dark:text-stone-400">
+            <p className="text-sm text-stone-500 dark:text-stone-400 animate-fade-in-up animate-delay-1">
               Using pantry staples: {result.pantry_used.join(", ")}
             </p>
           )}
 
           {/* Minimal rescue */}
           {result.minimal_rescue?.enabled && (
-            <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-lg p-4">
+            <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-lg p-4 animate-fade-in-up animate-delay-1">
               <p className="font-medium text-amber-800 dark:text-amber-300 mb-2">
                 {result.minimal_rescue.rescue_line}
               </p>
@@ -468,10 +472,12 @@ export default function Home() {
           )}
 
           {/* Cook Mode */}
-          <CookMode steps={result.steps} />
+          <div className="animate-fade-in-up animate-delay-2">
+            <CookMode steps={result.steps} />
+          </div>
 
           {/* Static steps (visible when cook mode is not started) */}
-          <div>
+          <div className="animate-fade-in-up animate-delay-3">
             <h3 className="font-semibold mb-2">Steps</h3>
             <ol className="space-y-2">
               {result.steps.map((step, i) => (
@@ -491,10 +497,14 @@ export default function Home() {
           </div>
 
           {/* Upgrade Ladder */}
-          <UpgradeLadderUI ladder={result.upgrade_ladder} />
+          <div className="animate-fade-in-up animate-delay-4">
+            <UpgradeLadderUI ladder={result.upgrade_ladder} />
+          </div>
 
           {/* Why This Works */}
-          <WhyThisWorks reasons={result.why_this_works} />
+          <div className="animate-fade-in-up animate-delay-5">
+            <WhyThisWorks reasons={result.why_this_works} />
+          </div>
 
           {/* Notes */}
           {result.notes.length > 0 && (
@@ -517,10 +527,14 @@ export default function Home() {
           )}
 
           {/* Feedback */}
-          <FeedbackButtons signature={feedbackSig} />
+          <div className="animate-fade-in-up animate-delay-6">
+            <FeedbackButtons signature={feedbackSig} />
+          </div>
 
           {/* Share */}
-          <ShareCard result={result} ingredientCount={ingredients.length} />
+          <div className="animate-fade-in-up animate-delay-6">
+            <ShareCard result={result} ingredientCount={ingredients.length} />
+          </div>
         </div>
       )}
     </main>
