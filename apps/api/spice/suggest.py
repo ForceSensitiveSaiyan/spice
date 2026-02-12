@@ -21,6 +21,7 @@ _MOCK_RESPONSES: dict[str, SuggestResponse] = {
     "maggi noodles": SuggestResponse(
         title="Caramelised onion Maggi with glossy broth",
         prep_time_minutes=12,
+        calories_estimate=420,
         flavour_mode="umami",
         steps=[
             Step(t_seconds=0, instruction="Slice onion thinly.", tip="Thinner = faster caramelisation."),
@@ -51,6 +52,7 @@ _MOCK_RESPONSES: dict[str, SuggestResponse] = {
     "rice": SuggestResponse(
         title="Quick garlic egg fried rice",
         prep_time_minutes=15,
+        calories_estimate=380,
         flavour_mode="umami",
         steps=[
             Step(t_seconds=0, instruction="Mince the garlic finely."),
@@ -83,6 +85,7 @@ _MOCK_RESPONSES: dict[str, SuggestResponse] = {
 _DEFAULT_MOCK = SuggestResponse(
     title="Simple toast with melted cheese",
     prep_time_minutes=8,
+    calories_estimate=280,
     flavour_mode="comfort_rich",
     steps=[
         Step(t_seconds=0, instruction="Butter one side of each bread slice."),
@@ -107,6 +110,7 @@ _DEFAULT_MOCK = SuggestResponse(
 _RESCUE_MOCK = SuggestResponse(
     title="Emergency Maggi \u2013 minimum viable noodles",
     prep_time_minutes=8,
+    calories_estimate=350,
     steps=[
         Step(t_seconds=0, instruction="Boil 1.5 cups water."),
         Step(t_seconds=120, instruction="Add noodles, cook 2 minutes."),

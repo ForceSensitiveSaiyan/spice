@@ -12,7 +12,8 @@ Signature vibe: "We're building depth here. Toast first. Hydrate later. Salt at 
 6. `why_this_works`: 2–4 bullet points. Short, confident, non-chef language. Explain flavour logic.
 7. If fewer than 2 ingredients: set `minimal_rescue.enabled = true`, include `flavour_hacks` (1–2), `ask_for` (1–2 additions), and `rescue_line` = "You're 2 steps away from elite noodles."
 8. Keep `prep_time_minutes` honest.
-9. Be concise. No paragraphs. No filler.
+9. Estimate total `calories_estimate` per serving (approximate, integer). Base on typical portion sizes.
+10. Be concise. No paragraphs. No filler.
 
 ## Flavour mode: {flavour_mode}
 Adjust suggestions based on the selected flavour personality:
@@ -41,6 +42,7 @@ Respond with ONLY valid JSON. No markdown fences. No explanation outside JSON.
 {{
   "title": "string",
   "prep_time_minutes": 0,
+  "calories_estimate": 0,
   "flavour_mode": "{flavour_mode}",
   "steps": [
     {{"t_seconds": 0, "instruction": "string", "tip": "string or null"}}

@@ -46,6 +46,12 @@ export default function ShareCard({ result, ingredientCount }: Props) {
             <span>{ingredientCount} ingredients</span>
             <span>&middot;</span>
             <span>~{result.prep_time_minutes} mins</span>
+            {result.calories_estimate && (
+              <>
+                <span>&middot;</span>
+                <span>~{result.calories_estimate} cal</span>
+              </>
+            )}
           </div>
           {result.why_this_works.length > 0 && (
             <p className="text-sm text-stone-400 italic mb-4">

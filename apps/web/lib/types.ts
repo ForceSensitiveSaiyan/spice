@@ -65,6 +65,7 @@ export interface Safety {
 export interface SuggestResponse {
   title: string;
   prep_time_minutes: number;
+  calories_estimate?: number;
   flavour_mode?: FlavourMode;
   steps: Step[];
   why_this_works: string[];

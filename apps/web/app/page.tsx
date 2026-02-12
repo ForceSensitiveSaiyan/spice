@@ -455,6 +455,11 @@ export default function Home() {
               <span className="text-xs bg-stone-200 dark:bg-stone-700 text-stone-600 dark:text-stone-300 px-2 py-0.5 rounded-full">
                 {ingredients.length} ingredients
               </span>
+              {result.calories_estimate && (
+                <span className="text-xs bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300 px-2 py-0.5 rounded-full">
+                  ~{result.calories_estimate} cal
+                </span>
+              )}
               {result.flavour_mode && (
                 <span className="text-xs bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 px-2 py-0.5 rounded-full">
                   {FLAVOUR_MODES.find((fm) => fm.value === result.flavour_mode)?.label || result.flavour_mode}
