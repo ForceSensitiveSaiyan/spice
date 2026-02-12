@@ -14,6 +14,7 @@ import WhyThisWorks from "./components/WhyThisWorks";
 import FeedbackButtons from "./components/FeedbackButtons";
 import ShareCard from "./components/ShareCard";
 import SettingsPanel from "./components/SettingsPanel";
+import IngredientAutocomplete from "./components/IngredientAutocomplete";
 import SkeletonLoader from "./components/SkeletonLoader";
 
 // ── Constants ────────────────────────────────────────────────────
@@ -235,17 +236,10 @@ export default function Home() {
       <section className="mb-6">
         <label className="block font-medium mb-2">Ingredients you have</label>
         <div className="flex gap-2">
-          <input
-            className="flex-1 border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-800 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500"
-            placeholder="e.g. maggi noodles"
+          <IngredientAutocomplete
             value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                e.preventDefault();
-                addIngredient();
-              }
-            }}
+            onChange={setInput}
+            onSelect={addIngredient}
           />
           <button
             onClick={() => addIngredient()}
