@@ -39,9 +39,30 @@ function fmtTime(s: number): string {
   return `${m}:${sec.toString().padStart(2, "0")}`;
 }
 
+// ── Dark mode hook ──────────────────────────────────────────────
+
+function useDarkMode() {
+  const [dark, setDark] = useState(false);
+
+  useEffect(() => {
+    setDark(document.documentElement.classList.contains("dark"));
+  }, []);
+
+  function toggle() {
+    const next = !dark;
+    setDark(next);
+    document.documentElement.classList.toggle("dark", next);
+    localStorage.setItem("spice-theme", next ? "dark" : "light");
+  }
+
+  return { dark, toggle };
+}
+
 // ── Page ─────────────────────────────────────────────────────────
 
 export default function Home() {
+  const { dark, toggle: toggleDark } = useDarkMode();
+
   // Inputs
   const [ingredients, setIngredients] = useState<string[]>([]);
   const [input, setInput] = useState("");
@@ -152,8 +173,16 @@ export default function Home() {
   return (
     <main className="max-w-2xl mx-auto px-4 py-10">
       {/* Header */}
-      <h1 className="text-3xl font-bold mb-1">SPICE</h1>
-      <p className="text-stone-500 mb-6">
+      <div className="flex items-center justify-between mb-1">
+        <h1 className="text-3xl font-bold">SPICE</h1>
+        <button
+          onClick={toggleDark}
+          className="text-sm px-3 py-1.5 rounded-full border border-stone-300 dark:border-stone-600 text-stone-500 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
+        >
+          {dark ? "Light" : "Dark"}
+        </button>
+      </div>
+      <p className="text-stone-500 dark:text-stone-400 mb-6">
         Smart Pantry Intelligence &amp; Culinary Engine
       </p>
 
@@ -163,14 +192,14 @@ export default function Home() {
           <button
             key={p.label}
             onClick={() => applyPreset(p)}
-            className="text-xs px-3 py-1.5 rounded-full border border-stone-300 text-stone-600 hover:bg-stone-100 transition-colors"
+            className="text-xs px-3 py-1.5 rounded-full border border-stone-300 dark:border-stone-600 text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
           >
             {p.label}
           </button>
         ))}
         <button
           onClick={applyChallenge}
-          className="text-xs px-3 py-1.5 rounded-full border border-amber-300 text-amber-700 hover:bg-amber-50 transition-colors"
+          className="text-xs px-3 py-1.5 rounded-full border border-amber-300 dark:border-amber-600 text-amber-700 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/30 transition-colors"
         >
           Budget Challenge
         </button>
@@ -181,7 +210,7 @@ export default function Home() {
         <label className="block font-medium mb-2">Ingredients you have</label>
         <div className="flex gap-2">
           <input
-            className="flex-1 border border-stone-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500"
+            className="flex-1 border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-800 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500"
             placeholder="e.g. maggi noodles"
             value={input}
             onChange={(e) => setInput(e.target.value)}
@@ -203,12 +232,12 @@ export default function Home() {
           {ingredients.map((item) => (
             <span
               key={item}
-              className="bg-amber-100 text-amber-800 px-3 py-1 rounded-full text-sm flex items-center gap-1"
+              className="bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-200 px-3 py-1 rounded-full text-sm flex items-center gap-1"
             >
               {item}
               <button
                 onClick={() => removeIngredient(item)}
-                className="text-amber-600 hover:text-amber-900 ml-1"
+                className="text-amber-600 dark:text-amber-400 hover:text-amber-900 dark:hover:text-amber-100 ml-1"
               >
                 &times;
               </button>
@@ -221,16 +250,16 @@ export default function Home() {
       <section className="mb-6">
         <button
           onClick={() => setShowPantry(!showPantry)}
-          className="text-sm text-stone-500 hover:text-stone-800 transition-colors"
+          className="text-sm text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200 transition-colors"
         >
           Pantry staples ({pantry.length}){" "}
           <span className="text-xs">{showPantry ? "hide" : "edit"}</span>
         </button>
         {showPantry && (
-          <div className="mt-2 p-3 bg-stone-50 rounded-lg border border-stone-200">
+          <div className="mt-2 p-3 bg-surface-alt dark:bg-surface-dark-alt rounded-lg border border-stone-200 dark:border-stone-700">
             <div className="flex gap-2 mb-2">
               <input
-                className="flex-1 border border-stone-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+                className="flex-1 border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-800 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
                 placeholder="e.g. oil, salt, soy sauce"
                 value={pantryInput}
                 onChange={(e) => setPantryInput(e.target.value)}
@@ -243,7 +272,7 @@ export default function Home() {
               />
               <button
                 onClick={addPantryItem}
-                className="text-sm bg-stone-700 text-white px-3 py-1.5 rounded-lg hover:bg-stone-800 transition-colors"
+                className="text-sm bg-stone-700 dark:bg-stone-600 text-white px-3 py-1.5 rounded-lg hover:bg-stone-800 dark:hover:bg-stone-500 transition-colors"
               >
                 Add
               </button>
@@ -252,19 +281,19 @@ export default function Home() {
               {pantry.map((item) => (
                 <span
                   key={item}
-                  className="bg-stone-200 text-stone-700 px-2 py-0.5 rounded-full text-xs flex items-center gap-1"
+                  className="bg-stone-200 dark:bg-stone-700 text-stone-700 dark:text-stone-300 px-2 py-0.5 rounded-full text-xs flex items-center gap-1"
                 >
                   {item}
                   <button
                     onClick={() => removePantryItem(item)}
-                    className="text-stone-500 hover:text-stone-800"
+                    className="text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-100"
                   >
                     &times;
                   </button>
                 </span>
               ))}
               {pantry.length === 0 && (
-                <span className="text-xs text-stone-400">
+                <span className="text-xs text-stone-400 dark:text-stone-500">
                   No pantry items yet. Add things you always have (oil, salt, etc.)
                 </span>
               )}
@@ -284,7 +313,7 @@ export default function Home() {
               className={`text-sm px-3 py-1.5 rounded-full border transition-colors ${
                 flavourMode === fm.value
                   ? "bg-amber-500 text-white border-amber-500"
-                  : "border-stone-300 text-stone-600 hover:bg-stone-100"
+                  : "border-stone-300 dark:border-stone-600 text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800"
               }`}
             >
               {fm.label}
@@ -300,7 +329,7 @@ export default function Home() {
           <select
             value={diet}
             onChange={(e) => setDiet(e.target.value)}
-            className="w-full border border-stone-300 rounded-lg px-3 py-2"
+            className="w-full border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-800 rounded-lg px-3 py-2"
           >
             {DIETS.map((d) => (
               <option key={d} value={d}>{d}</option>
@@ -315,7 +344,7 @@ export default function Home() {
             max={120}
             value={timeMinutes}
             onChange={(e) => setTimeMinutes(Number(e.target.value))}
-            className="w-full border border-stone-300 rounded-lg px-3 py-2"
+            className="w-full border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-800 rounded-lg px-3 py-2"
           />
         </div>
         <div>
@@ -323,7 +352,7 @@ export default function Home() {
           <select
             value={spiceLevel}
             onChange={(e) => setSpiceLevel(e.target.value)}
-            className="w-full border border-stone-300 rounded-lg px-3 py-2"
+            className="w-full border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-800 rounded-lg px-3 py-2"
           >
             {SPICE_LEVELS.map((s) => (
               <option key={s} value={s}>{s}</option>
@@ -339,8 +368,8 @@ export default function Home() {
                 onClick={() => toggleEquipment(eq)}
                 className={`text-xs px-2 py-1 rounded-full border transition-colors ${
                   equipment.includes(eq)
-                    ? "bg-stone-800 text-white border-stone-800"
-                    : "border-stone-300 text-stone-500"
+                    ? "bg-stone-800 dark:bg-stone-200 text-white dark:text-stone-900 border-stone-800 dark:border-stone-200"
+                    : "border-stone-300 dark:border-stone-600 text-stone-500 dark:text-stone-400"
                 }`}
               >
                 {eq}
@@ -352,13 +381,13 @@ export default function Home() {
 
       {/* Skill mode toggle */}
       <section className="mb-6 flex items-center gap-3">
-        <span className="text-sm text-stone-500">Skill:</span>
+        <span className="text-sm text-stone-500 dark:text-stone-400">Skill:</span>
         <button
           onClick={() => setSkillMode(skillMode === "beginner" ? "confident" : "beginner")}
           className={`text-sm px-3 py-1.5 rounded-full border transition-colors ${
             skillMode === "beginner"
-              ? "bg-stone-800 text-white border-stone-800"
-              : "border-stone-300 text-stone-600"
+              ? "bg-stone-800 dark:bg-stone-200 text-white dark:text-stone-900 border-stone-800 dark:border-stone-200"
+              : "border-stone-300 dark:border-stone-600 text-stone-600 dark:text-stone-300"
           }`}
         >
           Beginner
@@ -367,8 +396,8 @@ export default function Home() {
           onClick={() => setSkillMode(skillMode === "confident" ? "beginner" : "confident")}
           className={`text-sm px-3 py-1.5 rounded-full border transition-colors ${
             skillMode === "confident"
-              ? "bg-stone-800 text-white border-stone-800"
-              : "border-stone-300 text-stone-600"
+              ? "bg-stone-800 dark:bg-stone-200 text-white dark:text-stone-900 border-stone-800 dark:border-stone-200"
+              : "border-stone-300 dark:border-stone-600 text-stone-600 dark:text-stone-300"
           }`}
         >
           Confident
@@ -379,12 +408,12 @@ export default function Home() {
       <button
         onClick={handleSubmit}
         disabled={loading}
-        className="w-full bg-stone-800 text-white py-3 rounded-lg font-medium hover:bg-stone-900 disabled:opacity-50 mb-8 transition-colors"
+        className="w-full bg-stone-800 dark:bg-stone-200 text-white dark:text-stone-900 py-3 rounded-lg font-medium hover:bg-stone-900 dark:hover:bg-stone-300 disabled:opacity-50 mb-8 transition-colors"
       >
         {loading ? "Cooking up ideas..." : "What can I make?"}
       </button>
 
-      {error && <p className="text-red-600 mb-4">{error}</p>}
+      {error && <p className="text-red-600 dark:text-red-400 mb-4">{error}</p>}
 
       {/* ── Result ──────────────────────────────────────────────── */}
       {result && (
@@ -393,14 +422,14 @@ export default function Home() {
           <div>
             <h2 className="text-2xl font-bold">{result.title}</h2>
             <div className="flex flex-wrap gap-2 mt-2">
-              <span className="text-xs bg-stone-200 text-stone-600 px-2 py-0.5 rounded-full">
+              <span className="text-xs bg-stone-200 dark:bg-stone-700 text-stone-600 dark:text-stone-300 px-2 py-0.5 rounded-full">
                 ~{result.prep_time_minutes} min
               </span>
-              <span className="text-xs bg-stone-200 text-stone-600 px-2 py-0.5 rounded-full">
+              <span className="text-xs bg-stone-200 dark:bg-stone-700 text-stone-600 dark:text-stone-300 px-2 py-0.5 rounded-full">
                 {ingredients.length} ingredients
               </span>
               {result.flavour_mode && (
-                <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">
+                <span className="text-xs bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 px-2 py-0.5 rounded-full">
                   {FLAVOUR_MODES.find((fm) => fm.value === result.flavour_mode)?.label || result.flavour_mode}
                 </span>
               )}
@@ -409,29 +438,29 @@ export default function Home() {
 
           {/* Pantry used */}
           {result.pantry_used.length > 0 && (
-            <p className="text-sm text-stone-500">
+            <p className="text-sm text-stone-500 dark:text-stone-400">
               Using pantry staples: {result.pantry_used.join(", ")}
             </p>
           )}
 
           {/* Minimal rescue */}
           {result.minimal_rescue?.enabled && (
-            <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
-              <p className="font-medium text-amber-800 mb-2">
+            <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-lg p-4">
+              <p className="font-medium text-amber-800 dark:text-amber-300 mb-2">
                 {result.minimal_rescue.rescue_line}
               </p>
               {result.minimal_rescue.flavour_hacks.length > 0 && (
                 <div className="mb-2">
-                  <p className="text-xs font-medium text-amber-600 uppercase tracking-wide mb-1">Flavour Hacks</p>
+                  <p className="text-xs font-medium text-amber-600 dark:text-amber-400 uppercase tracking-wide mb-1">Flavour Hacks</p>
                   <ul className="space-y-1">
                     {result.minimal_rescue.flavour_hacks.map((h, i) => (
-                      <li key={i} className="text-sm text-amber-700">{h}</li>
+                      <li key={i} className="text-sm text-amber-700 dark:text-amber-300">{h}</li>
                     ))}
                   </ul>
                 </div>
               )}
               {result.minimal_rescue.ask_for.length > 0 && (
-                <p className="text-sm text-amber-700">
+                <p className="text-sm text-amber-700 dark:text-amber-300">
                   If you have one more thing: <span className="font-medium">{result.minimal_rescue.ask_for.join(" or ")}</span>
                 </p>
               )}
@@ -447,13 +476,13 @@ export default function Home() {
             <ol className="space-y-2">
               {result.steps.map((step, i) => (
                 <li key={i} className="flex gap-3">
-                  <span className="text-amber-600 font-mono text-sm min-w-[3.5rem]">
+                  <span className="text-amber-600 dark:text-amber-400 font-mono text-sm min-w-[3.5rem]">
                     {fmtTime(step.t_seconds)}
                   </span>
                   <div>
                     <span>{step.instruction}</span>
                     {step.tip && (
-                      <p className="text-xs text-stone-400 mt-0.5">{step.tip}</p>
+                      <p className="text-xs text-stone-400 dark:text-stone-500 mt-0.5">{step.tip}</p>
                     )}
                   </div>
                 </li>
@@ -471,7 +500,7 @@ export default function Home() {
           {result.notes.length > 0 && (
             <div>
               <h3 className="font-semibold mb-2">Notes</h3>
-              <ul className="list-disc list-inside space-y-1 text-stone-600 text-sm">
+              <ul className="list-disc list-inside space-y-1 text-stone-600 dark:text-stone-400 text-sm">
                 {result.notes.map((n, i) => (
                   <li key={i}>{n}</li>
                 ))}
@@ -481,7 +510,7 @@ export default function Home() {
 
           {/* Safety */}
           {result.safety.missing_ingredients.length > 0 && (
-            <p className="text-sm text-stone-500">
+            <p className="text-sm text-stone-500 dark:text-stone-400">
               Assumed available: {result.safety.missing_ingredients.join(", ")}.{" "}
               {result.safety.disclaimer}
             </p>

@@ -28,12 +28,12 @@ export default function ShareCard({ result, ingredientCount }: Props) {
 
   return (
     <div>
-      {/* Hidden card for export */}
+      {/* Hidden card for export — always dark for branded look */}
       <div className="overflow-hidden h-0">
         <div
           ref={cardRef}
           className="w-[400px] bg-stone-900 text-white p-6 rounded-2xl"
-          style={{ fontFamily: "system-ui, sans-serif" }}
+          style={{ fontFamily: "'Inter', system-ui, sans-serif" }}
         >
           <p className="text-amber-400 text-xs font-bold uppercase tracking-widest mb-4">
             SPICE
@@ -57,7 +57,7 @@ export default function ShareCard({ result, ingredientCount }: Props) {
 
       <button
         onClick={handleShare}
-        className="w-full border border-stone-300 text-stone-600 py-2.5 rounded-lg font-medium hover:bg-stone-100 transition-colors"
+        className="w-full border border-stone-300 dark:border-stone-600 text-stone-600 dark:text-stone-300 py-2.5 rounded-lg font-medium hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
       >
         Share Card (download PNG)
       </button>

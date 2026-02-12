@@ -20,7 +20,7 @@ export default function FeedbackButtons({ signature }: Props) {
 
   if (submitted) {
     return (
-      <p className="text-sm text-stone-500">
+      <p className="text-sm text-stone-500 dark:text-stone-400">
         Noted: <span className="font-medium">{OPTIONS.find((o) => o.value === submitted)?.label}</span>.
         We&apos;ll adjust next time.
       </p>
@@ -29,7 +29,7 @@ export default function FeedbackButtons({ signature }: Props) {
 
   return (
     <div>
-      <p className="text-sm text-stone-500 mb-2">How was it?</p>
+      <p className="text-sm text-stone-500 dark:text-stone-400 mb-2">How was it?</p>
       <div className="flex flex-wrap gap-2">
         {OPTIONS.map((opt) => (
           <button
@@ -38,7 +38,7 @@ export default function FeedbackButtons({ signature }: Props) {
               saveFeedback(signature, opt.value);
               setSubmitted(opt.value);
             }}
-            className="text-sm px-3 py-1.5 rounded-full border border-stone-300 hover:bg-stone-100 transition-colors"
+            className="text-sm px-3 py-1.5 rounded-full border border-stone-300 dark:border-stone-600 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
           >
             {opt.label}
           </button>
