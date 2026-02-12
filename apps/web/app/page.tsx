@@ -13,6 +13,7 @@ import UpgradeLadderUI from "./components/UpgradeLadderUI";
 import WhyThisWorks from "./components/WhyThisWorks";
 import FeedbackButtons from "./components/FeedbackButtons";
 import ShareCard from "./components/ShareCard";
+import SettingsPanel from "./components/SettingsPanel";
 import SkeletonLoader from "./components/SkeletonLoader";
 
 // ── Constants ────────────────────────────────────────────────────
@@ -78,7 +79,9 @@ export default function Home() {
   // Pantry
   const [pantry, setPantry] = useState<string[]>([]);
   const [pantryInput, setPantryInput] = useState("");
-  const [showPantry, setShowPantry] = useState(false);
+
+  // Settings panel
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   // Result
   const [result, setResult] = useState<SuggestResponse | null>(null);
@@ -186,12 +189,24 @@ export default function Home() {
       {/* Header */}
       <div className="flex items-center justify-between mb-1">
         <h1 className="text-3xl font-bold">SPICE</h1>
-        <button
-          onClick={toggleDark}
-          className="text-sm px-3 py-1.5 rounded-full border border-stone-300 dark:border-stone-600 text-stone-500 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
-        >
-          {dark ? "Light" : "Dark"}
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setSettingsOpen(true)}
+            className="text-sm px-2.5 py-1.5 rounded-full border border-stone-300 dark:border-stone-600 text-stone-500 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
+            aria-label="Settings"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          </button>
+          <button
+            onClick={toggleDark}
+            className="text-sm px-3 py-1.5 rounded-full border border-stone-300 dark:border-stone-600 text-stone-500 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
+          >
+            {dark ? "Light" : "Dark"}
+          </button>
+        </div>
       </div>
       <p className="text-stone-500 dark:text-stone-400 mb-6">
         Smart Pantry Intelligence &amp; Culinary Engine
@@ -254,76 +269,6 @@ export default function Home() {
               </button>
             </span>
           ))}
-        </div>
-      </section>
-
-      {/* Pantry memory */}
-      <section className="mb-6">
-        <button
-          onClick={() => setShowPantry(!showPantry)}
-          aria-expanded={showPantry}
-          className="text-sm text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200 transition-colors min-h-[44px] flex items-center"
-        >
-          Pantry staples ({pantry.length}){" "}
-          <svg
-            className={`w-3 h-3 ml-1 transition-transform duration-200 ${showPantry ? "rotate-180" : ""}`}
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={2}
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-          </svg>
-        </button>
-        <div
-          className="grid transition-[grid-template-rows] duration-200 ease-out"
-          style={{ gridTemplateRows: showPantry ? "1fr" : "0fr" }}
-        >
-          <div className="overflow-hidden">
-            <div className="mt-2 p-3 bg-surface-alt dark:bg-surface-dark-alt rounded-lg border border-stone-200 dark:border-stone-700">
-              <div className="flex gap-2 mb-2">
-                <input
-                  className="flex-1 border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-800 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
-                  placeholder="e.g. oil, salt, soy sauce"
-                  value={pantryInput}
-                  onChange={(e) => setPantryInput(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      addPantryItem();
-                    }
-                  }}
-                />
-                <button
-                  onClick={addPantryItem}
-                  className="text-sm bg-stone-700 dark:bg-stone-600 text-white px-3 py-1.5 rounded-lg hover:bg-stone-800 dark:hover:bg-stone-500 transition-colors min-h-[44px]"
-                >
-                  Add
-                </button>
-              </div>
-              <div className="flex flex-wrap gap-1.5">
-                {pantry.map((item) => (
-                  <span
-                    key={item}
-                    className="bg-stone-200 dark:bg-stone-700 text-stone-700 dark:text-stone-300 px-2 py-0.5 rounded-full text-xs flex items-center gap-1"
-                  >
-                    {item}
-                    <button
-                      onClick={() => removePantryItem(item)}
-                      className="text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-100 min-w-[20px] min-h-[20px] flex items-center justify-center"
-                    >
-                      &times;
-                    </button>
-                  </span>
-                ))}
-                {pantry.length === 0 && (
-                  <span className="text-xs text-stone-400 dark:text-stone-500">
-                    No pantry items yet. Add things you always have (oil, salt, etc.)
-                  </span>
-                )}
-              </div>
-            </div>
-          </div>
         </div>
       </section>
 
@@ -402,31 +347,6 @@ export default function Home() {
             ))}
           </div>
         </div>
-      </section>
-
-      {/* Skill mode toggle */}
-      <section className="mb-6 flex items-center gap-3">
-        <span className="text-sm text-stone-500 dark:text-stone-400">Skill:</span>
-        <button
-          onClick={() => setSkillMode(skillMode === "beginner" ? "confident" : "beginner")}
-          className={`text-sm px-3 py-1.5 rounded-full border transition-colors ${
-            skillMode === "beginner"
-              ? "bg-stone-800 dark:bg-stone-200 text-white dark:text-stone-900 border-stone-800 dark:border-stone-200"
-              : "border-stone-300 dark:border-stone-600 text-stone-600 dark:text-stone-300"
-          }`}
-        >
-          Beginner
-        </button>
-        <button
-          onClick={() => setSkillMode(skillMode === "confident" ? "beginner" : "confident")}
-          className={`text-sm px-3 py-1.5 rounded-full border transition-colors ${
-            skillMode === "confident"
-              ? "bg-stone-800 dark:bg-stone-200 text-white dark:text-stone-900 border-stone-800 dark:border-stone-200"
-              : "border-stone-300 dark:border-stone-600 text-stone-600 dark:text-stone-300"
-          }`}
-        >
-          Confident
-        </button>
       </section>
 
       {/* Submit */}
@@ -566,6 +486,19 @@ export default function Home() {
         </div>
       )}
       </div>
+
+      {/* Settings panel */}
+      <SettingsPanel
+        open={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
+        pantry={pantry}
+        pantryInput={pantryInput}
+        onPantryInputChange={setPantryInput}
+        onAddPantryItem={addPantryItem}
+        onRemovePantryItem={removePantryItem}
+        skillMode={skillMode}
+        onSkillModeChange={setSkillMode}
+      />
     </main>
   );
 }
