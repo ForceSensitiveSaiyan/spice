@@ -69,11 +69,12 @@ class Safety(BaseModel):
 
 
 class SuggestResponse(BaseModel):
-    title: str
-    prep_time_minutes: int
+    rejection: str | None = None
+    title: str = ""
+    prep_time_minutes: int = 0
     calories_estimate: int | None = None
     flavour_mode: FlavourMode | None = None
-    steps: list[Step]
+    steps: list[Step] = Field(default_factory=list)
     why_this_works: list[str] = Field(default_factory=list)
     upgrade_ladder: UpgradeLadder = Field(default_factory=UpgradeLadder)
     minimal_rescue: MinimalRescue | None = None

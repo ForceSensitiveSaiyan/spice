@@ -63,6 +63,7 @@ export interface Safety {
 }
 
 export interface SuggestResponse {
+  rejection?: string;
   title: string;
   prep_time_minutes: number;
   calories_estimate?: number;

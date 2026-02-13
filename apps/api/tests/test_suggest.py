@@ -180,6 +180,34 @@ def test_schema_validates_with_calories():
     assert parsed.calories_estimate > 0
 
 
+# ── Rejection field ─────────────────────────────────────────────
+
+def test_schema_accepts_rejection_field():
+    """SuggestResponse should accept a rejection-only response."""
+    data = {
+        "rejection": "Headphones are better listened to than saut\u00e9ed.",
+        "title": "",
+        "prep_time_minutes": 0,
+        "steps": [],
+        "why_this_works": [],
+        "upgrade_ladder": {"pantry_upgrade": [], "if_you_have": [], "one_pound_shop": None},
+        "pantry_used": [],
+        "notes": [],
+        "safety": {"assumptions": [], "missing_ingredients": [], "disclaimer": ""},
+    }
+    parsed = SuggestResponse.model_validate(data)
+    assert parsed.rejection is not None
+    assert parsed.title == ""
+
+
+def test_existing_responses_have_no_rejection():
+    """Normal mock responses should have rejection=None."""
+    res = client.post("/v1/suggest", json={"ingredients": ["maggi noodles", "onion"]})
+    assert res.status_code == 200
+    data = res.json()
+    assert data.get("rejection") is None
+
+
 # ── Health endpoint ──────────────────────────────────────────────
 
 def test_health_returns_ok():
