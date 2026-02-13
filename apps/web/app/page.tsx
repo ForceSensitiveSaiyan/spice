@@ -653,6 +653,13 @@ export default function Home() {
         >
           ai.doo
         </a>
+        {" "}&middot;{" "}
+        <a
+          href="mailto:hello@aidoo.biz"
+          className="underline hover:text-stone-600 dark:hover:text-[rgba(245,245,245,0.6)] transition-colors duration-150"
+        >
+          Feedback
+        </a>
       </footer>
     </main>
   );
