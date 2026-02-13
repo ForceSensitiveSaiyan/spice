@@ -7,6 +7,9 @@ RUN npm ci
 
 COPY apps/web/ .
 
+ARG NEXT_PUBLIC_UMAMI_URL
+ARG NEXT_PUBLIC_UMAMI_WEBSITE_ID
+
 RUN npm run build
 
 # ── Run stage ────────────────────────────────────────────────
