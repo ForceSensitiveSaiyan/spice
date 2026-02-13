@@ -80,9 +80,9 @@ export default function ShareCard({ result, ingredientCount }: Props) {
   }, [result, ingredientCount]);
 
   return (
-    <div>
-      {/* Hidden card for export — always dark for branded look */}
-      <div className="overflow-hidden h-0">
+    <div className="relative">
+      {/* Hidden card for export — positioned absolute so it doesn't affect layout */}
+      <div className="absolute overflow-hidden h-0 pointer-events-none">
         <div
           ref={cardRef}
           className="w-[400px] bg-[#111111] text-[#F5F5F5] p-6 rounded-2xl"
