@@ -266,7 +266,8 @@ export default function Home() {
       </a>
 
       {/* ── Top bar ──────────────────────────────────────────── */}
-      <div className="flex items-center justify-between mb-5">
+      <div className="sticky top-0 z-40 -mx-4 px-4 py-3 mb-2 backdrop-blur-md bg-white/80 dark:bg-[#111111]/80 border-b border-stone-200/50 dark:border-white/5">
+      <div className="flex items-center justify-between">
         <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
           SP<span className="text-amber-600 dark:text-amber-400" style={{ fontSize: '110%', lineHeight: 1 }}>I</span>CE
         </h1>
@@ -307,12 +308,13 @@ export default function Home() {
           </button>
         </div>
       </div>
+      </div>
 
       {/* ── Card stack ───────────────────────────────────────── */}
       <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] lg:gap-4 lg:items-start">
 
       {/* ── Left column: inputs ──────────────────────────────── */}
-      <div className="space-y-3 lg:sticky lg:top-6">
+      <div className="space-y-3 lg:sticky lg:top-16">
 
         {/* Card 1: Ingredients */}
         <Card>
