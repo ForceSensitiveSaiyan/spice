@@ -9,7 +9,7 @@ import os
 # Add packages to path so we can import shared schemas
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "..", "packages"))
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 from pydantic import ValidationError
 from shared.schemas import (
     SuggestRequest,
@@ -26,6 +26,7 @@ from spice.db import (
     record_feedback,
     get_feedback_breakdown,
 )
+from spice.rate_limit import check_rate_limit
 from spice.suggest import get_suggestion
 
 logger = logging.getLogger("spice.routes")
@@ -33,7 +34,12 @@ router = APIRouter()
 
 
 @router.post("/suggest", response_model=SuggestResponse)
-async def suggest(req: SuggestRequest) -> SuggestResponse:
+async def suggest(req: SuggestRequest, request: Request) -> SuggestResponse:
+    # Rate limit by client IP
+    client_ip = request.headers.get("x-forwarded-for", request.client.host if request.client else "unknown")
+    if not check_rate_limit(client_ip):
+        raise HTTPException(status_code=429, detail="Rate limit exceeded. Please try again later.")
+
     try:
         result = await get_suggestion(req)
 

@@ -33,7 +33,7 @@ export default function FeedbackButtons({ signature, onCommunityUpdate }: Props)
             onClick={async () => {
               saveFeedback(signature, opt.value);
               setSubmitted(true);
-              toast.success(`Noted: ${opt.label}. We'll adjust next time.`);
+              toast.success(`Noted: ${opt.label}`);
 
               const res = await submitFeedback({
                 combo_signature: signature,
