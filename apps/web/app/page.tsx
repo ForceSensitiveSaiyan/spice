@@ -256,7 +256,7 @@ export default function Home() {
   const feedbackSig = makeSignature(ingredients, flavourMode);
 
   return (
-    <main className="max-w-2xl mx-auto px-4 py-6 sm:py-10">
+    <main className="max-w-5xl mx-auto px-4 py-6 sm:py-10">
       {/* Skip link */}
       <a
         href="#results"
@@ -309,7 +309,10 @@ export default function Home() {
       </div>
 
       {/* ── Card stack ───────────────────────────────────────── */}
-      <div className="space-y-3">
+      <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] lg:gap-4 lg:items-start">
+
+      {/* ── Left column: inputs ──────────────────────────────── */}
+      <div className="space-y-3 lg:sticky lg:top-6">
 
         {/* Card 1: Ingredients */}
         <Card>
@@ -430,6 +433,11 @@ export default function Home() {
         >
           {loading ? LOADING_MESSAGES[loadingMsgIdx] : "What can I make?"}
         </button>
+
+      </div>{/* end left column */}
+
+      {/* ── Right column: results ────────────────────────────── */}
+      <div className="space-y-3 mt-3 lg:mt-0">
 
         {/* Loading skeleton */}
         {loading && (
@@ -580,7 +588,9 @@ export default function Home() {
           </div>
         )}
         </div>
-      </div>
+
+      </div>{/* end right column */}
+      </div>{/* end grid */}
 
       {/* Saved recipes panel */}
       <SavedRecipesPanel
