@@ -62,6 +62,12 @@ export interface Safety {
   disclaimer: string;
 }
 
+export interface CommunityStats {
+  combo_count: number;
+  feedback_breakdown: Record<string, number>;
+  total_feedback: number;
+}
+
 export interface SuggestResponse {
   rejection?: string;
   title: string;
@@ -75,4 +81,18 @@ export interface SuggestResponse {
   pantry_used: string[];
   notes: string[];
   safety: Safety;
+  community?: CommunityStats;
+}
+
+// ── Feedback ────────────────────────────────────────────────────
+
+export interface FeedbackRequest {
+  combo_signature: string;
+  feedback_type: FeedbackType;
+}
+
+export interface FeedbackResponse {
+  status: string;
+  feedback_breakdown: Record<string, number>;
+  total_feedback: number;
 }

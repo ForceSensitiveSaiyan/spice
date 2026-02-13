@@ -4,18 +4,28 @@ import logging
 import os
 import time
 import uuid
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
+from spice.db import init_db
 from spice.routes import router
 
 log_level = os.environ.get("LOG_LEVEL", "info").upper()
 logging.basicConfig(level=getattr(logging, log_level, logging.INFO), format="%(asctime)s %(levelname)s %(message)s")
 logger = logging.getLogger("spice")
 
-app = FastAPI(title="SPICE API", version="0.2.0")
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    init_db()
+    logger.info("Database initialised")
+    yield
+
+
+app = FastAPI(title="SPICE API", version="0.3.0", lifespan=lifespan)
 
 # CORS — restrict in production via CORS_ORIGINS env var
 _origins = os.environ.get("CORS_ORIGINS", "http://localhost:3737").split(",")
@@ -29,7 +39,7 @@ app.add_middleware(
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "version": "0.2.0"}
+    return {"status": "ok", "version": "0.3.0"}
 
 
 @app.middleware("http")

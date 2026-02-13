@@ -68,6 +68,12 @@ class Safety(BaseModel):
     disclaimer: str = "Adjust salt to taste."
 
 
+class CommunityStats(BaseModel):
+    combo_count: int = 0
+    feedback_breakdown: dict[str, int] = Field(default_factory=dict)
+    total_feedback: int = 0
+
+
 class SuggestResponse(BaseModel):
     rejection: str | None = None
     title: str = ""
@@ -81,3 +87,17 @@ class SuggestResponse(BaseModel):
     pantry_used: list[str] = Field(default_factory=list)
     notes: list[str] = Field(default_factory=list)
     safety: Safety = Field(default_factory=Safety)
+    community: CommunityStats | None = None
+
+
+# ── Feedback ─────────────────────────────────────────────────────
+
+class FeedbackRequest(BaseModel):
+    combo_signature: str
+    feedback_type: FeedbackType
+
+
+class FeedbackResponse(BaseModel):
+    status: str = "ok"
+    feedback_breakdown: dict[str, int] = Field(default_factory=dict)
+    total_feedback: int = 0
