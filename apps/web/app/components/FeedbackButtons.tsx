@@ -23,8 +23,8 @@ export default function FeedbackButtons({ signature }: Props) {
 
   return (
     <div>
-      <p className="text-sm text-stone-500 dark:text-stone-400 mb-2">How was it?</p>
-      <div className="flex flex-wrap gap-2">
+      <p className="text-[11px] font-semibold uppercase tracking-widest text-stone-400 dark:text-[rgba(245,245,245,0.4)] mb-2">How was it?</p>
+      <div className="flex flex-wrap gap-1.5">
         {OPTIONS.map((opt) => (
           <button
             key={opt.value}
@@ -33,7 +33,7 @@ export default function FeedbackButtons({ signature }: Props) {
               setSubmitted(true);
               toast.success(`Noted: ${opt.label}. We'll adjust next time.`);
             }}
-            className="text-sm px-3 py-1.5 rounded-full border border-stone-300 dark:border-stone-600 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
+            className="text-xs px-3 py-1.5 rounded-full border border-white/10 text-stone-500 dark:text-[rgba(245,245,245,0.5)] hover:text-stone-800 dark:hover:text-[#F5F5F5] hover:border-white/20 transition-colors duration-150"
           >
             {opt.label}
           </button>

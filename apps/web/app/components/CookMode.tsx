@@ -114,7 +114,7 @@ export default function CookMode({ steps, active, onActiveChange }: CookModeProp
     return (
       <button
         onClick={() => onActiveChange(true)}
-        className="w-full border-2 border-dashed border-amber-400 dark:border-amber-500 text-amber-700 dark:text-amber-400 py-3 rounded-lg font-medium hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors"
+        className="w-full border border-dashed border-amber-400/50 dark:border-amber-500/40 text-amber-700 dark:text-amber-400 py-3 rounded-lg text-sm font-medium hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors duration-150"
       >
         Start Cooking Mode
       </button>
@@ -124,7 +124,7 @@ export default function CookMode({ steps, active, onActiveChange }: CookModeProp
   const done = elapsed >= totalTime;
 
   return (
-    <div className="border border-stone-200 dark:border-stone-700 rounded-xl p-4 bg-white dark:bg-surface-dark-card">
+    <div className="border border-stone-200 dark:border-white/10 rounded-xl p-4 bg-white dark:bg-surface-dark-card">
       {/* Timer header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
         <div className="flex items-center gap-3">
@@ -141,7 +141,7 @@ export default function CookMode({ steps, active, onActiveChange }: CookModeProp
           <button
             onClick={() => setMuted(!muted)}
             aria-label={muted ? "Unmute step notifications" : "Mute step notifications"}
-            className="text-sm px-2 py-1.5 rounded-lg border border-stone-300 dark:border-stone-600 hover:bg-stone-100 dark:hover:bg-stone-700 min-h-[36px]"
+            className="text-xs px-2.5 py-1.5 rounded-lg border border-stone-200 dark:border-white/10 hover:bg-stone-100 dark:hover:bg-white/5 transition-colors duration-150 min-h-[36px]"
           >
             {muted ? (
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -158,7 +158,7 @@ export default function CookMode({ steps, active, onActiveChange }: CookModeProp
           <button
             onClick={toggleLargeText}
             aria-label={largeText ? "Normal text size" : "Large text size"}
-            className="text-sm px-2 py-1.5 rounded-lg border border-stone-300 dark:border-stone-600 hover:bg-stone-100 dark:hover:bg-stone-700 min-h-[36px] font-bold"
+            className="text-xs px-2.5 py-1.5 rounded-lg border border-stone-200 dark:border-white/10 hover:bg-stone-100 dark:hover:bg-white/5 transition-colors duration-150 min-h-[36px] font-bold"
           >
             {largeText ? "A" : "A+"}
           </button>
@@ -166,7 +166,7 @@ export default function CookMode({ steps, active, onActiveChange }: CookModeProp
           {!done && currentIdx < steps.length - 1 && (
             <button
               onClick={skipToNextStep}
-              className="text-sm px-3 py-1.5 rounded-lg border border-stone-300 dark:border-stone-600 hover:bg-stone-100 dark:hover:bg-stone-700 min-h-[36px]"
+              className="text-xs px-3 py-1.5 rounded-lg border border-stone-200 dark:border-white/10 hover:bg-stone-100 dark:hover:bg-white/5 transition-colors duration-150 min-h-[36px]"
             >
               Skip
             </button>
@@ -174,7 +174,7 @@ export default function CookMode({ steps, active, onActiveChange }: CookModeProp
           {!done && (
             <button
               onClick={() => setPaused(!paused)}
-              className="text-sm px-3 py-1.5 rounded-lg border border-stone-300 dark:border-stone-600 hover:bg-stone-100 dark:hover:bg-stone-700 min-h-[36px]"
+              className="text-xs px-3 py-1.5 rounded-lg border border-stone-200 dark:border-white/10 hover:bg-stone-100 dark:hover:bg-white/5 transition-colors duration-150 min-h-[36px]"
             >
               {paused ? "Resume" : "Pause"}
             </button>
@@ -186,7 +186,7 @@ export default function CookMode({ steps, active, onActiveChange }: CookModeProp
               setElapsed(0);
               setPaused(false);
             }}
-            className="text-sm px-3 py-1.5 rounded-lg border border-stone-300 dark:border-stone-600 hover:bg-stone-100 dark:hover:bg-stone-700 min-h-[36px]"
+            className="text-xs px-3 py-1.5 rounded-lg border border-stone-200 dark:border-white/10 hover:bg-stone-100 dark:hover:bg-white/5 transition-colors duration-150 min-h-[36px]"
           >
             Stop
           </button>
@@ -194,7 +194,7 @@ export default function CookMode({ steps, active, onActiveChange }: CookModeProp
       </div>
 
       {/* Progress bar */}
-      <div className="h-1.5 bg-stone-100 dark:bg-stone-700 rounded-full mb-4 overflow-hidden">
+      <div className="h-1.5 bg-stone-100 dark:bg-white/10 rounded-full mb-4 overflow-hidden">
         <div
           className="h-full bg-amber-500 rounded-full transition-all duration-1000"
           style={{ width: `${Math.min((elapsed / totalTime) * 100, 100)}%` }}
