@@ -98,6 +98,9 @@ async def generate_suggestion(req: SuggestRequest) -> SuggestResponse:
 
     try:
         data = _extract_json(raw)
+        # If the LLM flagged a rejection, return a minimal valid response
+        if data.get("rejection"):
+            return SuggestResponse(rejection=data["rejection"])
         return SuggestResponse.model_validate(data)
     except (json.JSONDecodeError, ValidationError) as exc:
         logger.warning("Failed to parse OpenAI response: %s\nRaw: %s", exc, raw[:500])
