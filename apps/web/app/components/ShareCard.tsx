@@ -8,9 +8,10 @@ import { saveRecipe } from "@/lib/recipes";
 interface Props {
   result: SuggestResponse;
   ingredientCount: number;
+  className?: string;
 }
 
-export default function ShareCard({ result, ingredientCount }: Props) {
+export default function ShareCard({ result, ingredientCount, className }: Props) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [cardDataUrl, setCardDataUrl] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
@@ -80,7 +81,7 @@ export default function ShareCard({ result, ingredientCount }: Props) {
   }, [result, ingredientCount]);
 
   return (
-    <div className="relative">
+    <div className={`relative ${className ?? ""}`}>
       {/* Hidden card for export — positioned absolute so it doesn't affect layout */}
       <div className="absolute overflow-hidden h-0 pointer-events-none">
         <div
