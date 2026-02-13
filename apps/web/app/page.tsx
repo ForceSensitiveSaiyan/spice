@@ -15,6 +15,7 @@ import WhyThisWorks from "./components/WhyThisWorks";
 import FeedbackButtons from "./components/FeedbackButtons";
 import ShareCard from "./components/ShareCard";
 import SettingsPanel from "./components/SettingsPanel";
+import SavedRecipesPanel from "./components/SavedRecipesPanel";
 import IngredientAutocomplete from "./components/IngredientAutocomplete";
 import SkeletonLoader from "./components/SkeletonLoader";
 
@@ -110,8 +111,9 @@ export default function Home() {
   const [pantry, setPantry] = useState<string[]>([]);
   const [pantryInput, setPantryInput] = useState("");
 
-  // Settings panel
+  // Panels
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [recipesOpen, setRecipesOpen] = useState(false);
 
   // Random presets
   const [visiblePresets, setVisiblePresets] = useState<typeof PRESET_POOL>([]);
@@ -239,6 +241,15 @@ export default function Home() {
           SP<span className="text-amber-600 dark:text-amber-400" style={{ fontSize: '110%', lineHeight: 1 }}>I</span>CE
         </h1>
         <div className="flex items-center gap-2">
+          <button
+            onClick={() => setRecipesOpen(true)}
+            className="text-sm px-2.5 py-1.5 rounded-full border border-stone-300 dark:border-stone-600 text-stone-500 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
+            aria-label="Saved recipes"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+            </svg>
+          </button>
           <button
             onClick={() => setSettingsOpen(true)}
             className="text-sm px-2.5 py-1.5 rounded-full border border-stone-300 dark:border-stone-600 text-stone-500 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
@@ -556,6 +567,13 @@ export default function Home() {
         </div>
       )}
       </div>
+
+      {/* Saved recipes panel */}
+      <SavedRecipesPanel
+        open={recipesOpen}
+        onClose={() => setRecipesOpen(false)}
+        onLoad={(r) => setResult(r)}
+      />
 
       {/* Settings panel */}
       <SettingsPanel
