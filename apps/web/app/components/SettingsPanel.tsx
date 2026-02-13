@@ -51,7 +51,7 @@ export default function SettingsPanel({
       {/* Panel */}
       <div
         ref={panelRef}
-        className="relative w-full max-w-sm bg-white dark:bg-stone-900 border-l border-stone-200 dark:border-stone-700 shadow-xl overflow-y-auto"
+        className="relative w-full max-w-sm bg-white dark:bg-stone-900 border-l border-stone-200 dark:border-stone-700 shadow-xl overflow-y-auto flex flex-col"
         role="dialog"
         aria-label="Settings"
       >
@@ -147,6 +147,12 @@ export default function SettingsPanel({
               )}
             </div>
           </section>
+        </div>
+
+        <div className="p-4 border-t border-stone-200 dark:border-stone-700 mt-auto">
+          <p className="text-xs text-stone-400 dark:text-stone-500 text-center">
+            Smart Pantry Intelligence &amp; Culinary Engine
+          </p>
         </div>
       </div>
     </div>

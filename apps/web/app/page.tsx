@@ -268,9 +268,6 @@ export default function Home() {
           </button>
         </div>
       </div>
-      <p className="text-stone-500 dark:text-stone-400 mb-6">
-        Smart Pantry Intelligence &amp; Culinary Engine
-      </p>
 
       {/* Presets + Challenge */}
       <div className="flex flex-wrap gap-2 mb-6">
