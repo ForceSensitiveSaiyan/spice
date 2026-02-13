@@ -8,6 +8,7 @@ import { getFeedback, makeSignature } from "@/lib/feedback";
 import { generateChallenge } from "@/lib/challenges";
 import type { SuggestResponse, FlavourMode, SkillMode, CommunityStats as CommunityStatsType } from "@/lib/types";
 import { LOADING_MESSAGES } from "@/lib/loading-messages";
+import { getStats, recordGeneration, updateStreak, type PersonalStats } from "@/lib/stats";
 
 import CookMode from "./components/CookMode";
 import UpgradeLadderUI from "./components/UpgradeLadderUI";
@@ -147,6 +148,9 @@ export default function Home() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [recipesOpen, setRecipesOpen] = useState(false);
 
+  // Personal stats
+  const [personalStats, setPersonalStats] = useState<PersonalStats | null>(null);
+
   // Random presets
   const [visiblePresets, setVisiblePresets] = useState<typeof PRESET_POOL>([]);
   useEffect(() => { setVisiblePresets(pickRandomPresets(4)); }, []);
@@ -172,6 +176,12 @@ export default function Home() {
   // Load pantry from localStorage
   useEffect(() => {
     setPantry(getPantry());
+  }, []);
+
+  // Personal stats: update streak on mount, load stats
+  useEffect(() => {
+    updateStreak();
+    setPersonalStats(getStats());
   }, []);
 
   function addIngredient(value?: string) {
@@ -251,6 +261,8 @@ export default function Home() {
       });
       setResult(res);
       setCommunityStats(res.community ?? null);
+      recordGeneration();
+      setPersonalStats(getStats());
       setTimeout(() => resultHeadingRef.current?.focus(), 100);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Something went wrong");
@@ -628,6 +640,7 @@ export default function Home() {
         onRemovePantryItem={removePantryItem}
         skillMode={skillMode}
         onSkillModeChange={setSkillMode}
+        stats={personalStats ?? undefined}
       />
 
       <footer className="mt-8 py-4 text-center text-xs text-stone-400 dark:text-[rgba(245,245,245,0.3)]">
