@@ -85,14 +85,17 @@ export default function ShareCard({ result, ingredientCount }: Props) {
       <div className="overflow-hidden h-0">
         <div
           ref={cardRef}
-          className="w-[400px] bg-stone-900 text-white p-6 rounded-2xl"
+          className="w-[400px] bg-[#111111] text-[#F5F5F5] p-6 rounded-2xl"
           style={{ fontFamily: "'Inter', system-ui, sans-serif" }}
         >
-          <p className="text-amber-400 text-xs font-bold uppercase tracking-widest mb-4">
-            SPICE
-          </p>
-          <h3 className="text-xl font-bold mb-4 leading-tight">{result.title}</h3>
-          <div className="flex gap-4 text-sm text-stone-300 mb-4">
+          <div className="flex items-center justify-between mb-5">
+            <p className="text-xl font-bold tracking-tight">
+              SP<span style={{ color: '#d97706', fontSize: '110%', lineHeight: 1 }}>I</span>CE
+            </p>
+            <div className="w-8 h-0.5 bg-[#C62828] rounded-full" />
+          </div>
+          <h3 className="text-lg font-bold mb-3 leading-tight">{result.title}</h3>
+          <div className="flex gap-3 text-xs text-[rgba(245,245,245,0.5)] mb-4">
             <span>{ingredientCount} ingredients</span>
             <span>&middot;</span>
             <span>~{result.prep_time_minutes} mins</span>
@@ -104,17 +107,19 @@ export default function ShareCard({ result, ingredientCount }: Props) {
             )}
           </div>
           {result.why_this_works.length > 0 && (
-            <p className="text-sm text-stone-400 italic mb-4">
+            <p className="text-xs text-[rgba(245,245,245,0.35)] italic mb-4 border-l-2 border-[#C62828] pl-3">
               &ldquo;{result.why_this_works[0]}&rdquo;
             </p>
           )}
-          <p className="text-[10px] text-stone-500 mt-2">
-            Made with SPICE &middot; Smart Pantry Intelligence &amp; Culinary Engine
-          </p>
+          <div className="mt-4 pt-3 border-t border-white/10">
+            <p className="text-[9px] text-[rgba(245,245,245,0.25)] uppercase tracking-widest">
+              Made with SPICE &middot; Smart Pantry Intelligence &amp; Culinary Engine
+            </p>
+          </div>
         </div>
       </div>
 
-      <div className="flex gap-2">
+      <div className="flex gap-2 justify-end">
         <button
           onClick={handleShare}
           disabled={!cardDataUrl}
