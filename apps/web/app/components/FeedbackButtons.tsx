@@ -33,7 +33,7 @@ export default function FeedbackButtons({ signature }: Props) {
               setSubmitted(true);
               toast.success(`Noted: ${opt.label}. We'll adjust next time.`);
             }}
-            className="flex-1 text-xs px-2 py-1.5 rounded-full border border-white/10 text-stone-500 dark:text-[rgba(245,245,245,0.5)] hover:text-stone-800 dark:hover:text-[#F5F5F5] hover:border-white/20 transition-colors duration-150 text-center"
+            className="text-xs px-3 py-1.5 rounded-full border border-white/10 text-stone-500 dark:text-[rgba(245,245,245,0.5)] hover:text-stone-800 dark:hover:text-[#F5F5F5] hover:border-white/20 transition-colors duration-150 whitespace-nowrap"
           >
             {opt.label}
           </button>
