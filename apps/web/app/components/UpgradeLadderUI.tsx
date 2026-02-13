@@ -5,9 +5,9 @@ import type { UpgradeLadder, Upgrade } from "@/lib/types";
 function UpgradeCard({ upgrade, accent }: { upgrade: Upgrade; accent: string }) {
   return (
     <div className={`border rounded-lg p-3 ${accent}`}>
-      <span className="font-medium">+{upgrade.requires}</span>
-      <span className="text-stone-500 dark:text-stone-400"> &mdash; {upgrade.why}</span>
-      <p className="text-sm text-stone-600 dark:text-stone-400 mt-1">{upgrade.how}</p>
+      <span className="font-medium text-sm">+{upgrade.requires}</span>
+      <span className="text-stone-500 dark:text-[rgba(245,245,245,0.5)] text-sm"> &mdash; {upgrade.why}</span>
+      <p className="text-xs text-stone-500 dark:text-[rgba(245,245,245,0.4)] mt-1">{upgrade.how}</p>
     </div>
   );
 }
@@ -20,17 +20,15 @@ export default function UpgradeLadderUI({ ladder }: { ladder: UpgradeLadder }) {
   if (!hasPantry && !hasIfYouHave && !hasShop) return null;
 
   return (
-    <div className="space-y-4">
-      <h3 className="font-semibold text-lg">Upgrade Ladder</h3>
-
+    <div className="space-y-3">
       {hasPantry && (
         <div>
-          <p className="text-xs font-medium text-stone-400 dark:text-stone-500 uppercase tracking-wide mb-2">
+          <p className="text-[10px] font-semibold text-stone-400 dark:text-[rgba(245,245,245,0.4)] uppercase tracking-widest mb-1.5">
             Level 1 &middot; Pantry Upgrade
           </p>
           <div className="space-y-2">
             {ladder.pantry_upgrade.map((u, i) => (
-              <UpgradeCard key={i} upgrade={u} accent="bg-stone-50 dark:bg-stone-800 border-stone-200 dark:border-stone-700" />
+              <UpgradeCard key={i} upgrade={u} accent="bg-stone-50 dark:bg-white/5 border-stone-200 dark:border-white/10" />
             ))}
           </div>
         </div>
@@ -38,12 +36,12 @@ export default function UpgradeLadderUI({ ladder }: { ladder: UpgradeLadder }) {
 
       {hasIfYouHave && (
         <div>
-          <p className="text-xs font-medium text-stone-400 dark:text-stone-500 uppercase tracking-wide mb-2">
+          <p className="text-[10px] font-semibold text-stone-400 dark:text-[rgba(245,245,245,0.4)] uppercase tracking-widest mb-1.5">
             Level 2 &middot; If You Have...
           </p>
           <div className="space-y-2">
             {ladder.if_you_have.map((u, i) => (
-              <UpgradeCard key={i} upgrade={u} accent="bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-700" />
+              <UpgradeCard key={i} upgrade={u} accent="bg-amber-50 dark:bg-amber-900/10 border-amber-200 dark:border-amber-700/30" />
             ))}
           </div>
         </div>
@@ -51,10 +49,10 @@ export default function UpgradeLadderUI({ ladder }: { ladder: UpgradeLadder }) {
 
       {hasShop && (
         <div>
-          <p className="text-xs font-medium text-stone-400 dark:text-stone-500 uppercase tracking-wide mb-2">
+          <p className="text-[10px] font-semibold text-stone-400 dark:text-[rgba(245,245,245,0.4)] uppercase tracking-widest mb-1.5">
             Level 3 &middot; &pound;1 Shop Add-On
           </p>
-          <UpgradeCard upgrade={ladder.one_pound_shop!} accent="bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-700" />
+          <UpgradeCard upgrade={ladder.one_pound_shop!} accent="bg-green-50 dark:bg-green-900/10 border-green-200 dark:border-green-700/30" />
         </div>
       )}
     </div>

@@ -18,6 +18,7 @@ import SettingsPanel from "./components/SettingsPanel";
 import SavedRecipesPanel from "./components/SavedRecipesPanel";
 import IngredientAutocomplete from "./components/IngredientAutocomplete";
 import SkeletonLoader from "./components/SkeletonLoader";
+import { Card, SectionHeader } from "./components/ui";
 
 // ── Constants ────────────────────────────────────────────────────
 
@@ -90,6 +91,36 @@ function useDarkMode() {
   }
 
   return { dark, toggle };
+}
+
+// ── Pill button helper ──────────────────────────────────────────
+
+function Pill({ active, onClick, children, accent }: {
+  active?: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+  accent?: boolean;
+}) {
+  const base = "text-xs px-3 py-1.5 rounded-full border transition-colors duration-150 min-h-[36px]";
+  if (accent) {
+    return (
+      <button onClick={onClick} className={`${base} border-amber-400/40 dark:border-amber-500/40 text-amber-700 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20`}>
+        {children}
+      </button>
+    );
+  }
+  if (active) {
+    return (
+      <button onClick={onClick} className={`${base} bg-[#F5F5F5] dark:bg-[#F5F5F5] text-[#111111] dark:text-[#111111] border-transparent font-medium`}>
+        {children}
+      </button>
+    );
+  }
+  return (
+    <button onClick={onClick} className={`${base} border-white/10 text-stone-500 dark:text-[rgba(245,245,245,0.5)] hover:text-stone-800 dark:hover:text-[#F5F5F5] hover:border-white/20`}>
+      {children}
+    </button>
+  );
 }
 
 // ── Page ─────────────────────────────────────────────────────────
@@ -214,7 +245,6 @@ export default function Home() {
         feedback_history: feedbackHistory,
       });
       setResult(res);
-      // Focus result heading for screen readers
       setTimeout(() => resultHeadingRef.current?.focus(), 100);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Something went wrong");
@@ -226,7 +256,7 @@ export default function Home() {
   const feedbackSig = makeSignature(ingredients, flavourMode);
 
   return (
-    <main className="max-w-2xl mx-auto px-4 py-10">
+    <main className="max-w-2xl mx-auto px-4 py-6 sm:py-10">
       {/* Skip link */}
       <a
         href="#results"
@@ -235,334 +265,321 @@ export default function Home() {
         Skip to results
       </a>
 
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-3xl font-bold">
+      {/* ── Top bar ──────────────────────────────────────────── */}
+      <div className="flex items-center justify-between mb-5">
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
           SP<span className="text-amber-600 dark:text-amber-400" style={{ fontSize: '110%', lineHeight: 1 }}>I</span>CE
         </h1>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           <button
             onClick={() => setRecipesOpen(true)}
-            className="text-sm px-2.5 py-1.5 rounded-full border border-stone-300 dark:border-stone-600 text-stone-500 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
+            className="p-2 rounded-lg text-stone-400 dark:text-[rgba(245,245,245,0.5)] hover:text-stone-800 dark:hover:text-[#F5F5F5] hover:bg-stone-100 dark:hover:bg-white/5 transition-colors duration-150"
             aria-label="Saved recipes"
           >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <svg className="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
             </svg>
           </button>
           <button
             onClick={() => setSettingsOpen(true)}
-            className="text-sm px-2.5 py-1.5 rounded-full border border-stone-300 dark:border-stone-600 text-stone-500 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
+            className="p-2 rounded-lg text-stone-400 dark:text-[rgba(245,245,245,0.5)] hover:text-stone-800 dark:hover:text-[#F5F5F5] hover:bg-stone-100 dark:hover:bg-white/5 transition-colors duration-150"
             aria-label="Settings"
           >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <svg className="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
               <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
           </button>
           <button
             onClick={toggleDark}
-            className="text-sm px-3 py-1.5 rounded-full border border-stone-300 dark:border-stone-600 text-stone-500 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
+            className="p-2 rounded-lg text-stone-400 dark:text-[rgba(245,245,245,0.5)] hover:text-stone-800 dark:hover:text-[#F5F5F5] hover:bg-stone-100 dark:hover:bg-white/5 transition-colors duration-150"
+            aria-label={dark ? "Switch to light mode" : "Switch to dark mode"}
           >
-            {dark ? "Light" : "Dark"}
+            {dark ? (
+              <svg className="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1m0 16v1m8.66-13.66l-.71.71M4.05 19.95l-.71.71M21 12h-1M4 12H3m16.66 7.66l-.71-.71M4.05 4.05l-.71-.71M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+              </svg>
+            ) : (
+              <svg className="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+              </svg>
+            )}
           </button>
         </div>
       </div>
 
-      {/* Presets + Challenge */}
-      <div className="flex flex-wrap gap-2 mb-6">
-        {visiblePresets.map((p) => (
-          <button
-            key={p.label}
-            onClick={() => applyPreset(p)}
-            className="text-xs px-3 py-1.5 rounded-full border border-stone-300 dark:border-stone-600 text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
-          >
-            {p.label}
-          </button>
-        ))}
-        <button
-          onClick={applyChallenge}
-          className="text-xs px-3 py-1.5 rounded-full border border-amber-300 dark:border-amber-600 text-amber-700 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/30 transition-colors"
-        >
-          Budget Challenge
-        </button>
-        {ingredients.length > 0 && (
-          <button
-            onClick={() => { setIngredients([]); setResult(null); }}
-            className="text-xs px-3 py-1.5 rounded-full border border-stone-300 dark:border-stone-600 text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
-          >
-            Clear
-          </button>
-        )}
-      </div>
+      {/* ── Card stack ───────────────────────────────────────── */}
+      <div className="space-y-3">
 
-      {/* Ingredient input */}
-      <section className="mb-6">
-        <label className="block font-medium mb-2">Ingredients you have</label>
-        <div className="flex gap-2">
-          <IngredientAutocomplete
-            value={input}
-            onChange={setInput}
-            onSelect={addIngredient}
-          />
-          <button
-            onClick={() => addIngredient()}
-            className="bg-amber-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-amber-600 transition-colors"
-          >
-            Add
-          </button>
-        </div>
-        <div className="flex flex-wrap gap-2 mt-3">
-          {ingredients.map((item) => (
-            <span
-              key={item}
-              className="bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-200 px-3 py-1 rounded-full text-sm flex items-center gap-1"
-            >
-              {item}
-              <button
-                onClick={() => removeIngredient(item)}
-                className="text-amber-600 dark:text-amber-400 hover:text-amber-900 dark:hover:text-amber-100 ml-1"
-              >
-                &times;
-              </button>
-            </span>
-          ))}
-        </div>
-      </section>
-
-      {/* Flavour mode */}
-      <section className="mb-6">
-        <label className="block text-sm font-medium mb-2">Flavour personality</label>
-        <div className="flex flex-wrap gap-2">
-          {FLAVOUR_MODES.map((fm) => (
+        {/* Card 1: Ingredients */}
+        <Card>
+          <SectionHeader>Ingredients you have</SectionHeader>
+          <div className="flex gap-2">
+            <IngredientAutocomplete
+              value={input}
+              onChange={setInput}
+              onSelect={addIngredient}
+            />
             <button
-              key={fm.value}
-              onClick={() => setFlavourMode(fm.value)}
-              className={`text-sm px-3 py-1.5 rounded-full border transition-colors ${
-                flavourMode === fm.value
-                  ? "bg-amber-500 text-white border-amber-500"
-                  : "border-stone-300 dark:border-stone-600 text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800"
-              }`}
+              onClick={() => addIngredient()}
+              className="bg-[#F5F5F5] dark:bg-[#F5F5F5] text-[#111111] px-4 py-2 rounded-lg text-sm font-medium hover:bg-white dark:hover:bg-white transition-colors duration-150"
             >
-              {fm.label}
+              Add
             </button>
-          ))}
-        </div>
-      </section>
-
-      {/* Constraints grid */}
-      <section className="mb-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium mb-1">Diet</label>
-          <select
-            value={diet}
-            onChange={(e) => setDiet(e.target.value)}
-            className="w-full border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-800 rounded-lg px-3 py-2"
-          >
-            {DIETS.map((d) => (
-              <option key={d} value={d}>{d}</option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">Time</label>
-          <div className="flex flex-wrap gap-2">
-            {TIME_OPTIONS.map((t) => (
-              <button
-                key={t}
-                onClick={() => setTimeMinutes(t)}
-                className={`text-xs px-3 py-1.5 rounded-full border transition-colors min-h-[36px] ${
-                  timeMinutes === t
-                    ? "bg-stone-800 dark:bg-stone-200 text-white dark:text-stone-900 border-stone-800 dark:border-stone-200"
-                    : "border-stone-300 dark:border-stone-600 text-stone-500 dark:text-stone-400"
-                }`}
-              >
-                {t} min
-              </button>
-            ))}
           </div>
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">Spice level</label>
-          <select
-            value={spiceLevel}
-            onChange={(e) => setSpiceLevel(e.target.value)}
-            className="w-full border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-800 rounded-lg px-3 py-2"
-          >
-            {SPICE_LEVELS.map((s) => (
-              <option key={s} value={s}>{s}</option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">Equipment</label>
-          <div className="flex flex-wrap gap-2">
-            {EQUIPMENT_OPTIONS.map((eq) => (
-              <button
-                key={eq}
-                onClick={() => toggleEquipment(eq)}
-                className={`text-xs px-3 py-1.5 rounded-full border transition-colors min-h-[36px] ${
-                  equipment.includes(eq)
-                    ? "bg-stone-800 dark:bg-stone-200 text-white dark:text-stone-900 border-stone-800 dark:border-stone-200"
-                    : "border-stone-300 dark:border-stone-600 text-stone-500 dark:text-stone-400"
-                }`}
-              >
-                {eq}
-              </button>
-            ))}
-          </div>
-        </div>
-      </section>
 
-      {/* Submit */}
-      <button
-        onClick={handleSubmit}
-        disabled={loading}
-        className="w-full bg-stone-800 dark:bg-stone-200 text-white dark:text-stone-900 py-3 rounded-lg font-medium hover:bg-stone-900 dark:hover:bg-stone-300 disabled:opacity-50 mb-8 transition-colors"
-      >
-        {loading ? LOADING_MESSAGES[loadingMsgIdx] : "What can I make?"}
-      </button>
-
-      {/* Loading skeleton */}
-      {loading && <SkeletonLoader />}
-
-      {/* ── Result ──────────────────────────────────────────────── */}
-      <div id="results" aria-live="polite">
-      {result && (
-        <div className="space-y-6">
-          {result.rejection ? (
-            <div className="animate-fade-in-up text-center py-8">
-              <p className="text-xl font-medium text-stone-600 dark:text-stone-300">
-                {result.rejection}
-              </p>
-              <p className="text-sm text-stone-400 dark:text-stone-500 mt-3">
-                Try adding some actual food ingredients.
-              </p>
-            </div>
-          ) : (<>
-          {/* Header with badges */}
-          <div className="animate-fade-in-up">
-            <h2 ref={resultHeadingRef} tabIndex={-1} className="text-2xl font-bold outline-none">{result.title}</h2>
-            <div className="flex flex-wrap gap-2 mt-2">
-              <span className="text-xs bg-stone-200 dark:bg-stone-700 text-stone-600 dark:text-stone-300 px-2 py-0.5 rounded-full">
-                ~{result.prep_time_minutes} min
-              </span>
-              <span className="text-xs bg-stone-200 dark:bg-stone-700 text-stone-600 dark:text-stone-300 px-2 py-0.5 rounded-full">
-                {ingredients.length} ingredients
-              </span>
-              {result.calories_estimate && (
-                <span className="text-xs bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300 px-2 py-0.5 rounded-full">
-                  ~{result.calories_estimate} cal
+          {/* Ingredient tags */}
+          {ingredients.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 mt-3">
+              {ingredients.map((item) => (
+                <span
+                  key={item}
+                  className="bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-200 px-2.5 py-0.5 rounded-full text-xs flex items-center gap-1"
+                >
+                  {item}
+                  <button
+                    onClick={() => removeIngredient(item)}
+                    className="text-amber-600 dark:text-amber-400 hover:text-amber-900 dark:hover:text-amber-100 ml-0.5"
+                  >
+                    &times;
+                  </button>
                 </span>
-              )}
-              {result.flavour_mode && (
-                <span className="text-xs bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 px-2 py-0.5 rounded-full">
-                  {FLAVOUR_MODES.find((fm) => fm.value === result.flavour_mode)?.label || result.flavour_mode}
-                </span>
-              )}
+              ))}
             </div>
-          </div>
-
-          {/* Pantry used */}
-          {result.pantry_used.length > 0 && (
-            <p className="text-sm text-stone-500 dark:text-stone-400 animate-fade-in-up animate-delay-1">
-              Using pantry staples: {result.pantry_used.join(", ")}
-            </p>
           )}
 
-          {/* Minimal rescue */}
-          {result.minimal_rescue?.enabled && (
-            <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-lg p-4 animate-fade-in-up animate-delay-1">
-              <p className="font-medium text-amber-800 dark:text-amber-300 mb-2">
-                {result.minimal_rescue.rescue_line}
-              </p>
-              {result.minimal_rescue.flavour_hacks.length > 0 && (
-                <div className="mb-2">
-                  <p className="text-xs font-medium text-amber-600 dark:text-amber-400 uppercase tracking-wide mb-1">Flavour Hacks</p>
-                  <ul className="space-y-1">
-                    {result.minimal_rescue.flavour_hacks.map((h, i) => (
-                      <li key={i} className="text-sm text-amber-700 dark:text-amber-300">{h}</li>
-                    ))}
-                  </ul>
+          {/* Presets */}
+          <div className="flex flex-wrap gap-1.5 mt-3 pt-3 border-t border-stone-100 dark:border-white/5">
+            {visiblePresets.map((p) => (
+              <Pill key={p.label} onClick={() => applyPreset(p)}>{p.label}</Pill>
+            ))}
+            <Pill accent onClick={applyChallenge}>Budget Challenge</Pill>
+            {ingredients.length > 0 && (
+              <Pill onClick={() => { setIngredients([]); setResult(null); }}>Clear</Pill>
+            )}
+          </div>
+        </Card>
+
+        {/* Card 2: Flavour & Constraints */}
+        <Card>
+          <SectionHeader>Flavour &amp; Preferences</SectionHeader>
+
+          {/* Flavour modes */}
+          <div className="flex flex-wrap gap-1.5 mb-4">
+            {FLAVOUR_MODES.map((fm) => (
+              <Pill key={fm.value} active={flavourMode === fm.value} onClick={() => setFlavourMode(fm.value)}>
+                {fm.label}
+              </Pill>
+            ))}
+          </div>
+
+          {/* Constraints rows */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-[11px] font-medium uppercase tracking-wide text-stone-400 dark:text-[rgba(245,245,245,0.4)] mb-1.5">Diet</label>
+              <select
+                value={diet}
+                onChange={(e) => setDiet(e.target.value)}
+                className="w-full border border-stone-200 dark:border-white/10 bg-stone-50 dark:bg-surface-dark-input rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+              >
+                {DIETS.map((d) => (
+                  <option key={d} value={d}>{d}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-[11px] font-medium uppercase tracking-wide text-stone-400 dark:text-[rgba(245,245,245,0.4)] mb-1.5">Time</label>
+              <div className="flex flex-wrap gap-1.5">
+                {TIME_OPTIONS.map((t) => (
+                  <Pill key={t} active={timeMinutes === t} onClick={() => setTimeMinutes(t)}>
+                    {t} min
+                  </Pill>
+                ))}
+              </div>
+            </div>
+            <div>
+              <label className="block text-[11px] font-medium uppercase tracking-wide text-stone-400 dark:text-[rgba(245,245,245,0.4)] mb-1.5">Spice level</label>
+              <select
+                value={spiceLevel}
+                onChange={(e) => setSpiceLevel(e.target.value)}
+                className="w-full border border-stone-200 dark:border-white/10 bg-stone-50 dark:bg-surface-dark-input rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+              >
+                {SPICE_LEVELS.map((s) => (
+                  <option key={s} value={s}>{s}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-[11px] font-medium uppercase tracking-wide text-stone-400 dark:text-[rgba(245,245,245,0.4)] mb-1.5">Equipment</label>
+              <div className="flex flex-wrap gap-1.5">
+                {EQUIPMENT_OPTIONS.map((eq) => (
+                  <Pill key={eq} active={equipment.includes(eq)} onClick={() => toggleEquipment(eq)}>
+                    {eq}
+                  </Pill>
+                ))}
+              </div>
+            </div>
+          </div>
+        </Card>
+
+        {/* Submit */}
+        <button
+          onClick={handleSubmit}
+          disabled={loading}
+          className="w-full bg-[#F5F5F5] dark:bg-[#F5F5F5] text-[#111111] py-3 rounded-xl text-sm font-semibold hover:bg-white dark:hover:bg-white disabled:opacity-50 transition-colors duration-150"
+        >
+          {loading ? LOADING_MESSAGES[loadingMsgIdx] : "What can I make?"}
+        </button>
+
+        {/* Loading skeleton */}
+        {loading && (
+          <Card>
+            <SkeletonLoader />
+          </Card>
+        )}
+
+        {/* ── Results ─────────────────────────────────────────── */}
+        <div id="results" aria-live="polite">
+        {result && (
+          <div className="space-y-3">
+            {result.rejection ? (
+              <Card>
+                <div className="animate-fade-in-up text-center py-6">
+                  <p className="text-lg font-medium text-stone-600 dark:text-[#F5F5F5]">
+                    {result.rejection}
+                  </p>
+                  <p className="text-sm text-stone-400 dark:text-[rgba(245,245,245,0.5)] mt-2">
+                    Try adding some actual food ingredients.
+                  </p>
                 </div>
-              )}
-              {result.minimal_rescue.ask_for.length > 0 && (
-                <p className="text-sm text-amber-700 dark:text-amber-300">
-                  If you have one more thing: <span className="font-medium">{result.minimal_rescue.ask_for.join(" or ")}</span>
+              </Card>
+            ) : (<>
+
+            {/* Result header card */}
+            <Card className="animate-fade-in-up">
+              <h2 ref={resultHeadingRef} tabIndex={-1} className="text-xl sm:text-2xl font-bold outline-none leading-tight">{result.title}</h2>
+              <div className="flex flex-wrap gap-1.5 mt-2">
+                <span className="text-[10px] bg-stone-100 dark:bg-white/10 text-stone-500 dark:text-[rgba(245,245,245,0.6)] px-2 py-0.5 rounded-full">
+                  ~{result.prep_time_minutes} min
+                </span>
+                <span className="text-[10px] bg-stone-100 dark:bg-white/10 text-stone-500 dark:text-[rgba(245,245,245,0.6)] px-2 py-0.5 rounded-full">
+                  {ingredients.length} ingredients
+                </span>
+                {result.calories_estimate && (
+                  <span className="text-[10px] bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 px-2 py-0.5 rounded-full">
+                    ~{result.calories_estimate} cal
+                  </span>
+                )}
+                {result.flavour_mode && (
+                  <span className="text-[10px] bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 px-2 py-0.5 rounded-full">
+                    {FLAVOUR_MODES.find((fm) => fm.value === result.flavour_mode)?.label || result.flavour_mode}
+                  </span>
+                )}
+              </div>
+
+              {result.pantry_used.length > 0 && (
+                <p className="text-xs text-stone-400 dark:text-[rgba(245,245,245,0.4)] mt-2">
+                  Using pantry staples: {result.pantry_used.join(", ")}
                 </p>
               )}
-            </div>
-          )}
+            </Card>
 
-          {/* Cook Mode */}
-          <div className="animate-fade-in-up animate-delay-2">
-            <CookMode steps={result.steps} active={cookModeActive} onActiveChange={setCookModeActive} />
+            {/* Minimal rescue */}
+            {result.minimal_rescue?.enabled && (
+              <Card className="animate-fade-in-up animate-delay-1 border-amber-200 dark:border-amber-700/50">
+                <p className="font-medium text-amber-800 dark:text-amber-300 text-sm mb-2">
+                  {result.minimal_rescue.rescue_line}
+                </p>
+                {result.minimal_rescue.flavour_hacks.length > 0 && (
+                  <div className="mb-2">
+                    <p className="text-[10px] font-semibold text-amber-600 dark:text-amber-400 uppercase tracking-widest mb-1">Flavour Hacks</p>
+                    <ul className="space-y-0.5">
+                      {result.minimal_rescue.flavour_hacks.map((h, i) => (
+                        <li key={i} className="text-sm text-amber-700 dark:text-amber-300">{h}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {result.minimal_rescue.ask_for.length > 0 && (
+                  <p className="text-sm text-amber-700 dark:text-amber-300">
+                    If you have one more thing: <span className="font-medium">{result.minimal_rescue.ask_for.join(" or ")}</span>
+                  </p>
+                )}
+              </Card>
+            )}
+
+            {/* Cook Mode card */}
+            <Card className="animate-fade-in-up animate-delay-2">
+              <SectionHeader>Cook Mode</SectionHeader>
+              <CookMode steps={result.steps} active={cookModeActive} onActiveChange={setCookModeActive} />
+            </Card>
+
+            {/* Static steps (hidden when cook mode is active) */}
+            {!cookModeActive && (
+              <Card className="animate-fade-in-up animate-delay-3">
+                <SectionHeader>Steps</SectionHeader>
+                <ol className="space-y-2">
+                  {result.steps.map((step, i) => (
+                    <li key={i} className="flex gap-3">
+                      <span className="text-amber-600 dark:text-amber-400 font-mono text-xs min-w-[3rem] pt-0.5">
+                        {fmtTime(step.t_seconds)}
+                      </span>
+                      <div>
+                        <span className="text-sm">{step.instruction}</span>
+                        {step.tip && (
+                          <p className="text-xs text-stone-400 dark:text-[rgba(245,245,245,0.4)] mt-0.5">{step.tip}</p>
+                        )}
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+
+                {/* Notes inline */}
+                {result.notes.length > 0 && (
+                  <div className="mt-4 pt-3 border-t border-stone-100 dark:border-white/5">
+                    <SectionHeader>Notes</SectionHeader>
+                    <ul className="space-y-1">
+                      {result.notes.map((n, i) => (
+                        <li key={i} className="text-sm text-stone-500 dark:text-[rgba(245,245,245,0.5)]">{n}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Safety disclaimer inline */}
+                {result.safety.missing_ingredients.length > 0 && (
+                  <p className="text-xs text-stone-400 dark:text-[rgba(245,245,245,0.35)] mt-3">
+                    Assumed available: {result.safety.missing_ingredients.join(", ")}.{" "}
+                    {result.safety.disclaimer}
+                  </p>
+                )}
+              </Card>
+            )}
+
+            {/* Why This Works */}
+            <Card className="animate-fade-in-up animate-delay-4">
+              <SectionHeader>Why This Works</SectionHeader>
+              <WhyThisWorks reasons={result.why_this_works} />
+            </Card>
+
+            {/* Upgrade Ladder */}
+            <Card className="animate-fade-in-up animate-delay-5">
+              <SectionHeader>Upgrade Ladder</SectionHeader>
+              <UpgradeLadderUI ladder={result.upgrade_ladder} />
+            </Card>
+
+            {/* Feedback + Share */}
+            <Card className="animate-fade-in-up animate-delay-6">
+              <div className="flex items-center justify-between">
+                <FeedbackButtons signature={feedbackSig} />
+                <ShareCard result={result} ingredientCount={ingredients.length} />
+              </div>
+            </Card>
+
+            </>)}
           </div>
-
-          {/* Static steps (hidden when cook mode is active) */}
-          {!cookModeActive && (
-            <div className="animate-fade-in-up animate-delay-3">
-              <h3 className="font-semibold mb-2">Steps</h3>
-              <ol className="space-y-2">
-                {result.steps.map((step, i) => (
-                  <li key={i} className="flex gap-3">
-                    <span className="text-amber-600 dark:text-amber-400 font-mono text-sm min-w-[3.5rem]">
-                      {fmtTime(step.t_seconds)}
-                    </span>
-                    <div>
-                      <span>{step.instruction}</span>
-                      {step.tip && (
-                        <p className="text-xs text-stone-400 dark:text-stone-500 mt-0.5">{step.tip}</p>
-                      )}
-                    </div>
-                  </li>
-                ))}
-              </ol>
-            </div>
-          )}
-
-          {/* Notes */}
-          {result.notes.length > 0 && (
-            <div className="animate-fade-in-up animate-delay-3">
-              <h3 className="font-semibold mb-2">Notes</h3>
-              <ul className="list-disc list-inside space-y-1 text-stone-600 dark:text-stone-400 text-sm">
-                {result.notes.map((n, i) => (
-                  <li key={i}>{n}</li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          {/* Why This Works */}
-          <div className="animate-fade-in-up animate-delay-4">
-            <WhyThisWorks reasons={result.why_this_works} />
-          </div>
-
-          {/* Upgrade Ladder */}
-          <div className="animate-fade-in-up animate-delay-5">
-            <UpgradeLadderUI ladder={result.upgrade_ladder} />
-          </div>
-
-          {/* Safety */}
-          {result.safety.missing_ingredients.length > 0 && (
-            <p className="text-sm text-stone-500 dark:text-stone-400">
-              Assumed available: {result.safety.missing_ingredients.join(", ")}.{" "}
-              {result.safety.disclaimer}
-            </p>
-          )}
-
-          {/* Feedback */}
-          <div className="animate-fade-in-up animate-delay-6">
-            <FeedbackButtons signature={feedbackSig} />
-          </div>
-
-          {/* Share */}
-          <div className="animate-fade-in-up animate-delay-6">
-            <ShareCard result={result} ingredientCount={ingredients.length} />
-          </div>
-          </>)}
+        )}
         </div>
-      )}
       </div>
 
       {/* Saved recipes panel */}
@@ -585,13 +602,13 @@ export default function Home() {
         onSkillModeChange={setSkillMode}
       />
 
-      <footer className="mt-12 py-6 text-center text-sm text-stone-400 dark:text-stone-500">
+      <footer className="mt-8 py-4 text-center text-xs text-stone-400 dark:text-[rgba(245,245,245,0.3)]">
         SPICE by{" "}
         <a
           href="https://aidoo.biz"
           target="_blank"
           rel="noopener noreferrer"
-          className="underline hover:text-stone-600 dark:hover:text-stone-300 transition-colors"
+          className="underline hover:text-stone-600 dark:hover:text-[rgba(245,245,245,0.6)] transition-colors duration-150"
         >
           ai.doo
         </a>
