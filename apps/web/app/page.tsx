@@ -236,7 +236,7 @@ export default function Home() {
       </a>
 
       {/* Header */}
-      <div className="flex items-center justify-between mb-1">
+      <div className="flex items-center justify-between mb-6">
         <h1 className="text-3xl font-bold">
           SP<span className="text-amber-600 dark:text-amber-400" style={{ fontSize: '110%', lineHeight: 1 }}>I</span>CE
         </h1>
