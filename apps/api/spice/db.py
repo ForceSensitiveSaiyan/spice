@@ -38,6 +38,14 @@ def init_db() -> None:
     _conn.commit()
 
 
+def close_db() -> None:
+    """Close the database connection."""
+    global _conn
+    if _conn is not None:
+        _conn.close()
+        _conn = None
+
+
 def _get_conn() -> sqlite3.Connection:
     if _conn is None:
         raise RuntimeError("Database not initialised — call init_db() first")

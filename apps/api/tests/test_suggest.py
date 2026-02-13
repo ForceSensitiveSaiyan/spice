@@ -301,6 +301,32 @@ def test_feedback_unknown_combo_returns_404():
     assert res.status_code == 404
 
 
+# ── Rate limiting ────────────────────────────────────────────────
+
+def test_rate_limit_returns_429():
+    """Exceeding rate limit should return 429."""
+    import spice.rate_limit as rl
+    from spice.rate_limit import _store, _lock
+
+    # Temporarily set a very low limit
+    original_max = rl._MAX_REQUESTS
+    rl._MAX_REQUESTS = 2
+
+    # Clear state for the test IP
+    with _lock:
+        _store.pop("testclient", None)
+
+    try:
+        client.post("/v1/suggest", json={"ingredients": ["rice", "egg"]})
+        client.post("/v1/suggest", json={"ingredients": ["rice", "egg"]})
+        res = client.post("/v1/suggest", json={"ingredients": ["rice", "egg"]})
+        assert res.status_code == 429
+    finally:
+        rl._MAX_REQUESTS = original_max
+        with _lock:
+            _store.pop("testclient", None)
+
+
 # ── Concurrent requests ──────────────────────────────────────────
 
 def test_concurrent_requests():

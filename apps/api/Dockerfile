@@ -22,4 +22,4 @@ EXPOSE 5000
 HEALTHCHECK --interval=30s --timeout=5s --retries=3 \
   CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:5000/health')"
 
-CMD ["uvicorn", "spice.main:app", "--host", "0.0.0.0", "--port", "5000", "--workers", "2"]
+CMD ["uvicorn", "spice.main:app", "--host", "0.0.0.0", "--port", "5000", "--workers", "1"]

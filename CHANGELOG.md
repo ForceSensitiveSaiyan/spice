@@ -2,6 +2,32 @@
 
 All notable changes to SPICE are documented here.
 
+## [0.5.0] - 2026-02-12
+
+### Added
+- **Community combo tracking** — SQLite-backed anonymous combo popularity counter
+- **Community ratings** — aggregated feedback breakdown pills per ingredient combo
+- **Feedback endpoint** — `POST /v1/feedback` for submitting combo ratings
+- **Personal stats** — recipes generated, saved, and daily streak (localStorage)
+- **Rate limiting** — per-IP sliding window on suggest endpoint (configurable via env vars)
+- **Sticky header** — frosted glass top bar stays visible on scroll
+- Saved recipes panel with bookmark icon in header
+- Native share sheet support on mobile (Web Share API with file/text fallback)
+- 16 new tests for db module, rate limiter, and rate limit integration (42 total)
+
+### Changed
+- Dockerfile: single worker for SQLite safety (`--workers 1`)
+- Docker Compose: CORS locked to `localhost:3737` (was wildcard `*`)
+- DB connection gracefully closed on shutdown
+- Rate limiter periodically prunes stale IPs to prevent memory growth
+- `.gitignore` expanded with IDE, OS, and Claude Code entries
+- README rewritten with configuration table, feedback endpoint docs, and full test count
+
+### Fixed
+- Feedback toast no longer promises "we'll adjust next time"
+- Share/save buttons stay right-aligned when feedback pills disappear
+- Hidden export card no longer pushes layout on narrow screens
+
 ## [0.4.0] - 2026-02-12
 
 ### Added

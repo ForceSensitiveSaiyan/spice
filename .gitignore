@@ -1,6 +1,7 @@
 __pycache__/
 *.pyc
 .env
+.env.*
 .venv/
 node_modules/
 .next/
@@ -8,3 +9,14 @@ dist/
 *.egg-info/
 .pytest_cache/
 *.db
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Claude Code
+.claude/

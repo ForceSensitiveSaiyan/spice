@@ -10,14 +10,24 @@ _WINDOW_SECONDS = int(os.environ.get("RATE_LIMIT_WINDOW", "3600"))  # 1 hour
 
 _store: dict[str, list[float]] = {}
 _lock = threading.Lock()
+_last_cleanup = 0.0
+_CLEANUP_INTERVAL = 300  # purge stale IPs every 5 minutes
 
 
 def check_rate_limit(ip: str) -> bool:
     """Return True if the request is allowed, False if rate-limited."""
+    global _last_cleanup
     now = time.time()
     cutoff = now - _WINDOW_SECONDS
 
     with _lock:
+        # Periodic cleanup: remove IPs with no recent activity
+        if now - _last_cleanup > _CLEANUP_INTERVAL:
+            stale = [k for k, v in _store.items() if not v or v[-1] <= cutoff]
+            for k in stale:
+                del _store[k]
+            _last_cleanup = now
+
         timestamps = _store.get(ip, [])
         # Prune expired entries
         timestamps = [t for t in timestamps if t > cutoff]
