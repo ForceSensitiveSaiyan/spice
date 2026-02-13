@@ -49,7 +49,7 @@ export default function ShareCard({ result, ingredientCount, className }: Props)
         { type: "image/png" }
       );
 
-      // Try native share (mobile)
+      // 1. Try native share with image (best experience)
       if (navigator.share && navigator.canShare?.({ files: [file] })) {
         await navigator.share({
           title: result.title,
@@ -60,7 +60,17 @@ export default function ShareCard({ result, ingredientCount, className }: Props)
         return;
       }
 
-      // Fallback: download
+      // 2. Try native share without image (triggers share sheet on mobile)
+      if (navigator.share) {
+        await navigator.share({
+          title: result.title,
+          text: `Check out this recipe: ${result.title}`,
+        });
+        toast.success("Shared!");
+        return;
+      }
+
+      // 3. Last resort: download image
       const link = document.createElement("a");
       link.download = file.name;
       link.href = cardDataUrl;

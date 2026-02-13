@@ -580,9 +580,9 @@ export default function Home() {
 
             {/* Feedback + Share */}
             <Card className="animate-fade-in-up animate-delay-6">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-center gap-2">
                 <FeedbackButtons signature={feedbackSig} />
-                <ShareCard result={result} ingredientCount={ingredients.length} className="ml-auto" />
+                <ShareCard result={result} ingredientCount={ingredients.length} className="ml-auto shrink-0" />
               </div>
             </Card>
 

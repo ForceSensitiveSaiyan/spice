@@ -24,7 +24,7 @@ export default function FeedbackButtons({ signature }: Props) {
   return (
     <div>
       <p className="text-[11px] font-semibold uppercase tracking-widest text-stone-400 dark:text-[rgba(245,245,245,0.4)] mb-2">How was it?</p>
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-1.5">
         {OPTIONS.map((opt) => (
           <button
             key={opt.value}
