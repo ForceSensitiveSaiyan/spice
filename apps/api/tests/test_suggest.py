@@ -253,6 +253,56 @@ def test_special_characters_in_ingredients():
     SuggestResponse.model_validate(data)
 
 
+# ── Community tracking ────────────────────────────────────────────
+
+def test_suggest_returns_community_stats():
+    """Suggest response should include community stats."""
+    res = client.post("/v1/suggest", json={"ingredients": ["maggi noodles", "onion"]})
+    assert res.status_code == 200
+    data = res.json()
+    assert "community" in data
+    assert data["community"]["combo_count"] >= 1
+    assert isinstance(data["community"]["feedback_breakdown"], dict)
+    assert isinstance(data["community"]["total_feedback"], int)
+
+
+def test_combo_count_increments():
+    """Same ingredient combo should increment combo_count."""
+    ingredients = ["unique_test_a", "unique_test_b"]
+    res1 = client.post("/v1/suggest", json={"ingredients": ingredients})
+    count1 = res1.json()["community"]["combo_count"]
+    res2 = client.post("/v1/suggest", json={"ingredients": ingredients})
+    count2 = res2.json()["community"]["combo_count"]
+    assert count2 == count1 + 1
+
+
+def test_feedback_endpoint_returns_breakdown():
+    """POST /v1/feedback should accept feedback and return breakdown."""
+    # First generate a combo so it exists
+    client.post("/v1/suggest", json={"ingredients": ["feedback_item_a", "feedback_item_b"]})
+    sig = ",".join(sorted(["feedback_item_a", "feedback_item_b"])) + "|none"
+    res = client.post("/v1/feedback", json={
+        "combo_signature": sig,
+        "feedback_type": "perfect",
+    })
+    assert res.status_code == 200
+    data = res.json()
+    assert data["status"] == "ok"
+    assert data["total_feedback"] >= 1
+    assert "perfect" in data["feedback_breakdown"]
+
+
+def test_feedback_unknown_combo_returns_404():
+    """Feedback for a combo that was never searched should return 404."""
+    res = client.post("/v1/feedback", json={
+        "combo_signature": "never_searched_x,never_searched_y|none",
+        "feedback_type": "perfect",
+    })
+    assert res.status_code == 404
+
+
+# ── Concurrent requests ──────────────────────────────────────────
+
 def test_concurrent_requests():
     """Multiple parallel requests should all succeed."""
     import concurrent.futures

@@ -10,6 +10,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY apps/api/ .
 COPY packages/ /packages
 
+# Create data directory for SQLite (writable by non-root user)
+RUN mkdir -p /app/spice/data && chown spice:spice /app/spice/data
+
 # Switch to non-root user
 USER spice
 

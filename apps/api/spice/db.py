@@ -13,7 +13,8 @@ _lock = threading.Lock()
 def init_db() -> None:
     """Create tables (idempotent) and enable WAL mode."""
     global _conn
-    os.makedirs(os.path.dirname(_DB_PATH), exist_ok=True)
+    if _DB_PATH != ":memory:":
+        os.makedirs(os.path.dirname(_DB_PATH), exist_ok=True)
     _conn = sqlite3.connect(_DB_PATH, check_same_thread=False)
     _conn.execute("PRAGMA journal_mode=WAL")
     _conn.executescript("""
