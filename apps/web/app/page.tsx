@@ -6,7 +6,7 @@ import { fetchSuggestion } from "@/lib/api";
 import { getPantry, savePantry } from "@/lib/pantry";
 import { getFeedback, makeSignature } from "@/lib/feedback";
 import { generateChallenge } from "@/lib/challenges";
-import type { SuggestResponse, FlavourMode, SkillMode } from "@/lib/types";
+import type { SuggestResponse, FlavourMode, SkillMode, CommunityStats as CommunityStatsType } from "@/lib/types";
 import { LOADING_MESSAGES } from "@/lib/loading-messages";
 
 import CookMode from "./components/CookMode";
@@ -18,6 +18,7 @@ import SettingsPanel from "./components/SettingsPanel";
 import SavedRecipesPanel from "./components/SavedRecipesPanel";
 import IngredientAutocomplete from "./components/IngredientAutocomplete";
 import SkeletonLoader from "./components/SkeletonLoader";
+import CommunityStats from "./components/CommunityStats";
 import { Card, SectionHeader } from "./components/ui";
 
 // ── Constants ────────────────────────────────────────────────────
@@ -152,6 +153,7 @@ export default function Home() {
 
   // Result
   const [result, setResult] = useState<SuggestResponse | null>(null);
+  const [communityStats, setCommunityStats] = useState<CommunityStatsType | null>(null);
   const [loading, setLoading] = useState(false);
   const [cookModeActive, setCookModeActive] = useState(false);
   const resultHeadingRef = useRef<HTMLHeadingElement>(null);
@@ -209,6 +211,7 @@ export default function Home() {
   function applyPreset(preset: { ingredients: string[] }) {
     setIngredients(preset.ingredients);
     setResult(null);
+    setCommunityStats(null);
   }
 
   function applyChallenge() {
@@ -216,6 +219,7 @@ export default function Home() {
     setIngredients(c.ingredients);
     setTimeMinutes(c.time_minutes);
     setResult(null);
+    setCommunityStats(null);
   }
 
   async function handleSubmit() {
@@ -225,6 +229,7 @@ export default function Home() {
     }
     setLoading(true);
     setResult(null);
+    setCommunityStats(null);
     setCookModeActive(false);
 
     const sig = makeSignature(ingredients, flavourMode);
@@ -245,6 +250,7 @@ export default function Home() {
         feedback_history: feedbackHistory,
       });
       setResult(res);
+      setCommunityStats(res.community ?? null);
       setTimeout(() => resultHeadingRef.current?.focus(), 100);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Something went wrong");
@@ -360,7 +366,7 @@ export default function Home() {
             ))}
             <Pill accent onClick={applyChallenge}>Budget Challenge</Pill>
             {ingredients.length > 0 && (
-              <Pill onClick={() => { setIngredients([]); setResult(null); }}>Clear</Pill>
+              <Pill onClick={() => { setIngredients([]); setResult(null); setCommunityStats(null); }}>Clear</Pill>
             )}
           </div>
         </Card>
@@ -492,6 +498,7 @@ export default function Home() {
                   Using pantry staples: {result.pantry_used.join(", ")}
                 </p>
               )}
+              {communityStats && <CommunityStats stats={communityStats} />}
             </Card>
 
             {/* Minimal rescue */}
@@ -581,7 +588,16 @@ export default function Home() {
             {/* Feedback + Share */}
             <Card className="animate-fade-in-up animate-delay-6">
               <div className="flex flex-wrap items-center gap-2">
-                <FeedbackButtons signature={feedbackSig} />
+                <FeedbackButtons
+                  signature={feedbackSig}
+                  onCommunityUpdate={(breakdown, total) =>
+                    setCommunityStats((prev) => ({
+                      combo_count: prev?.combo_count ?? 0,
+                      feedback_breakdown: breakdown,
+                      total_feedback: total,
+                    }))
+                  }
+                />
                 <ShareCard result={result} ingredientCount={ingredients.length} className="ml-auto shrink-0" />
               </div>
             </Card>
@@ -598,7 +614,7 @@ export default function Home() {
       <SavedRecipesPanel
         open={recipesOpen}
         onClose={() => setRecipesOpen(false)}
-        onLoad={(r) => setResult(r)}
+        onLoad={(r) => { setResult(r); setCommunityStats(r.community ?? null); }}
       />
 
       {/* Settings panel */}

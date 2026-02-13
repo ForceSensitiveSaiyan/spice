@@ -4,6 +4,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import type { FeedbackType } from "@/lib/types";
 import { saveFeedback } from "@/lib/feedback";
+import { submitFeedback } from "@/lib/api";
 
 const OPTIONS: { value: FeedbackType; label: string }[] = [
   { value: "too_salty", label: "Too salty" },
@@ -14,9 +15,10 @@ const OPTIONS: { value: FeedbackType; label: string }[] = [
 
 interface Props {
   signature: string;
+  onCommunityUpdate?: (breakdown: Record<string, number>, total: number) => void;
 }
 
-export default function FeedbackButtons({ signature }: Props) {
+export default function FeedbackButtons({ signature, onCommunityUpdate }: Props) {
   const [submitted, setSubmitted] = useState(false);
 
   if (submitted) return null;
@@ -28,10 +30,18 @@ export default function FeedbackButtons({ signature }: Props) {
         {OPTIONS.map((opt) => (
           <button
             key={opt.value}
-            onClick={() => {
+            onClick={async () => {
               saveFeedback(signature, opt.value);
               setSubmitted(true);
               toast.success(`Noted: ${opt.label}. We'll adjust next time.`);
+
+              const res = await submitFeedback({
+                combo_signature: signature,
+                feedback_type: opt.value,
+              });
+              if (res.total_feedback > 0 && onCommunityUpdate) {
+                onCommunityUpdate(res.feedback_breakdown, res.total_feedback);
+              }
             }}
             className="text-xs px-3 py-1.5 rounded-full border border-white/10 text-stone-500 dark:text-[rgba(245,245,245,0.5)] hover:text-stone-800 dark:hover:text-[#F5F5F5] hover:border-white/20 transition-colors duration-150 whitespace-nowrap"
           >
