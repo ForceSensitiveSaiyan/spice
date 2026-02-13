@@ -33,11 +33,38 @@ const FLAVOUR_MODES: { value: FlavourMode; label: string }[] = [
   { value: "clean_light", label: "Clean & Light" },
 ];
 
-const PRESETS = [
+const PRESET_POOL = [
   { label: "Maggi + Onion", ingredients: ["maggi noodles", "onion"] },
   { label: "Rice + Frozen veg", ingredients: ["rice", "frozen peas", "soy sauce"] },
   { label: "Pasta + Tinned tomatoes", ingredients: ["pasta", "tinned tomatoes", "garlic"] },
+  { label: "Egg + Toast", ingredients: ["egg", "bread"] },
+  { label: "Beans on Toast", ingredients: ["baked beans", "bread", "butter"] },
+  { label: "Ramen + Egg", ingredients: ["instant ramen", "egg", "spring onions"] },
+  { label: "Chickpea stir-fry", ingredients: ["tinned chickpeas", "onion", "garlic"] },
+  { label: "Omelette", ingredients: ["egg", "cheese", "butter"] },
+  { label: "Tuna pasta", ingredients: ["pasta", "tinned tuna", "sweetcorn"] },
+  { label: "Lentil soup", ingredients: ["red lentils", "onion", "tinned tomatoes"] },
+  { label: "Couscous salad", ingredients: ["couscous", "cucumber", "lemon"] },
+  { label: "Cheesy nachos", ingredients: ["tortilla chips", "cheese", "salsa"] },
+  { label: "Fried rice", ingredients: ["rice", "egg", "soy sauce"] },
+  { label: "Banana pancakes", ingredients: ["banana", "egg", "flour"] },
+  { label: "Garlic bread", ingredients: ["bread", "butter", "garlic"] },
+  { label: "Quesadilla", ingredients: ["tortilla", "cheese", "peppers"] },
+  { label: "Pesto pasta", ingredients: ["pasta", "pesto", "parmesan"] },
+  { label: "Stir-fry noodles", ingredients: ["noodles", "soy sauce", "frozen veg"] },
+  { label: "Tomato soup", ingredients: ["tinned tomatoes", "onion", "stock cube"] },
+  { label: "Jacket potato", ingredients: ["potato", "cheese", "baked beans"] },
+  { label: "Sardines on toast", ingredients: ["tinned sardines", "bread", "lemon"] },
+  { label: "Dal", ingredients: ["red lentils", "onion", "garlic", "tinned tomatoes"] },
+  { label: "Mushroom toast", ingredients: ["mushrooms", "bread", "garlic", "butter"] },
+  { label: "Veggie wrap", ingredients: ["tortilla", "lettuce", "cucumber", "hummus"] },
+  { label: "Spam + Rice", ingredients: ["spam", "rice", "egg"] },
 ];
+
+function pickRandomPresets(count: number) {
+  const shuffled = [...PRESET_POOL].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, count);
+}
 
 function fmtTime(s: number): string {
   const m = Math.floor(s / 60);
@@ -85,6 +112,10 @@ export default function Home() {
 
   // Settings panel
   const [settingsOpen, setSettingsOpen] = useState(false);
+
+  // Random presets
+  const [visiblePresets, setVisiblePresets] = useState<typeof PRESET_POOL>([]);
+  useEffect(() => { setVisiblePresets(pickRandomPresets(4)); }, []);
 
   // Result
   const [result, setResult] = useState<SuggestResponse | null>(null);
@@ -232,7 +263,7 @@ export default function Home() {
 
       {/* Presets + Challenge */}
       <div className="flex flex-wrap gap-2 mb-6">
-        {PRESETS.map((p) => (
+        {visiblePresets.map((p) => (
           <button
             key={p.label}
             onClick={() => applyPreset(p)}
@@ -326,7 +357,7 @@ export default function Home() {
           </select>
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1">Time (minutes)</label>
+          <label className="block text-sm font-medium mb-1">Time</label>
           <div className="flex flex-wrap gap-2">
             {TIME_OPTIONS.map((t) => (
               <button
@@ -391,6 +422,16 @@ export default function Home() {
       <div id="results" aria-live="polite">
       {result && (
         <div className="space-y-6">
+          {result.rejection ? (
+            <div className="animate-fade-in-up text-center py-8">
+              <p className="text-xl font-medium text-stone-600 dark:text-stone-300">
+                {result.rejection}
+              </p>
+              <p className="text-sm text-stone-400 dark:text-stone-500 mt-3">
+                Try adding some actual food ingredients.
+              </p>
+            </div>
+          ) : (<>
           {/* Header with badges */}
           <div className="animate-fade-in-up">
             <h2 ref={resultHeadingRef} tabIndex={-1} className="text-2xl font-bold outline-none">{result.title}</h2>
@@ -511,6 +552,7 @@ export default function Home() {
           <div className="animate-fade-in-up animate-delay-6">
             <ShareCard result={result} ingredientCount={ingredients.length} />
           </div>
+          </>)}
         </div>
       )}
       </div>
