@@ -644,7 +644,7 @@ export default function Home() {
       />
 
       <footer className="mt-8 py-4 text-center text-xs text-stone-400 dark:text-[rgba(245,245,245,0.3)]">
-        SPICE by{" "}
+        &copy; 2026{" "}
         <a
           href="https://aidoo.biz"
           target="_blank"
