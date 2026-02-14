@@ -2,6 +2,18 @@
 
 All notable changes to SPICE are documented here.
 
+## [0.5.1] - 2026-02-13
+
+### Added
+- Feedback email link in footer (`mailto:hello@aidoo.biz`)
+- Air fryer added to equipment options
+- Umami self-hosted analytics with Postgres (Docker)
+- GitHub Actions auto-deploy workflow on push to master
+- In-app "What's New" changelog in settings panel
+
+### Changed
+- Footer simplified to "© 2026 ai.doo · Feedback"
+
 ## [0.5.0] - 2026-02-12
 
 ### Added
