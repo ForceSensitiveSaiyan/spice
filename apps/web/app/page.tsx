@@ -26,7 +26,7 @@ import { Card, SectionHeader } from "./components/ui";
 
 const DIETS = ["any", "vegetarian", "vegan", "pescatarian"];
 const SPICE_LEVELS = ["mild", "medium", "hot"];
-const EQUIPMENT_OPTIONS = ["hob", "oven", "microwave", "pan", "wok", "pot"];
+const EQUIPMENT_OPTIONS = ["hob", "oven", "microwave", "air fryer", "pan", "wok", "pot"];
 const TIME_OPTIONS = [15, 30, 45, 60];
 
 const FLAVOUR_MODES: { value: FlavourMode; label: string }[] = [
