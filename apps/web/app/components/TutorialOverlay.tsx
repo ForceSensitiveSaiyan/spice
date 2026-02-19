@@ -47,6 +47,9 @@ export default function TutorialOverlay({
   const lastFocusedRef = useRef<HTMLElement | null>(null);
   const prevOpenRef = useRef(false);
   const rafRef = useRef<number | null>(null);
+  const closeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [shouldRender, setShouldRender] = useState(open);
+  const [visible, setVisible] = useState(open);
   const [position, setPosition] = useState<Position>({
     top: 0,
     left: 0,
@@ -138,6 +141,26 @@ export default function TutorialOverlay({
 
   useEffect(() => {
     if (open) {
+      if (closeTimeoutRef.current) {
+        clearTimeout(closeTimeoutRef.current);
+      }
+      setShouldRender(true);
+      requestAnimationFrame(() => setVisible(true));
+      return;
+    }
+    setVisible(false);
+    closeTimeoutRef.current = setTimeout(() => {
+      setShouldRender(false);
+    }, 180);
+    return () => {
+      if (closeTimeoutRef.current) {
+        clearTimeout(closeTimeoutRef.current);
+      }
+    };
+  }, [open]);
+
+  useEffect(() => {
+    if (open) {
       lastFocusedRef.current = document.activeElement instanceof HTMLElement
         ? document.activeElement
         : null;
@@ -195,18 +218,25 @@ export default function TutorialOverlay({
     first?.focus();
   }, [open, stepIndex, focusableSelector]);
 
-  if (!open || !step) return null;
+  if (!shouldRender || !step) return null;
 
   const isLast = stepIndex === totalSteps - 1;
 
   return (
-    <div className="fixed inset-0 z-50">
-      <div className="absolute inset-0 bg-black/30 dark:bg-black/50" onClick={onClose} />
+    <div className={`fixed inset-0 z-50 ${visible ? "pointer-events-auto" : "pointer-events-none"}`}>
+      <div
+        className={`absolute inset-0 bg-black/30 dark:bg-black/50 transition-opacity duration-200 ${
+          visible ? "opacity-100" : "opacity-0"
+        }`}
+        onClick={onClose}
+      />
 
       <div className="absolute inset-0 pointer-events-none" aria-hidden>
         {highlight && (
           <div
-            className="absolute border-2 border-amber-400/70 dark:border-amber-500/60 rounded-xl shadow-[0_0_0_6px_rgba(245,158,11,0.12)]"
+            className={`absolute border-2 border-amber-400/70 dark:border-amber-500/60 rounded-xl shadow-[0_0_0_6px_rgba(245,158,11,0.12)] transition-opacity duration-200 ${
+              visible ? "opacity-100" : "opacity-0"
+            }`}
             style={{
               top: highlight.top,
               left: highlight.left,
@@ -223,7 +253,9 @@ export default function TutorialOverlay({
         aria-modal="true"
         aria-labelledby={`tutorial-title-${step.id}`}
         aria-describedby={`tutorial-desc-${step.id}`}
-        className="pointer-events-auto absolute bg-white dark:bg-surface-dark-card border border-stone-200 dark:border-white/10 rounded-xl shadow-xl p-4 sm:p-5 animate-fade-in-up"
+        className={`pointer-events-auto absolute bg-white dark:bg-surface-dark-card border border-stone-200 dark:border-white/10 rounded-xl shadow-xl p-4 sm:p-5 transition-all duration-200 ${
+          visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"
+        }`}
         style={{ top: position.top, left: position.left, width: position.maxWidth }}
       >
         <div className="flex items-center justify-between">
