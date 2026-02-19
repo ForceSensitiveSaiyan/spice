@@ -63,6 +63,6 @@ jobs:
 
       - name: External smoke checks
         run: |
-          curl -fsS https://spice.aidoo.biz/ > /dev/null
-          curl -fsS https://spice.aidoo.biz/robots.txt > /dev/null
-          curl -fsS https://spice.aidoo.biz/sitemap.xml > /dev/null
+          curl -fsS --retry 12 --retry-delay 5 --retry-all-errors https://spice.aidoo.biz/ > /dev/null
+          curl -fsS --retry 12 --retry-delay 5 --retry-all-errors https://spice.aidoo.biz/robots.txt > /dev/null
+          curl -fsS --retry 12 --retry-delay 5 --retry-all-errors https://spice.aidoo.biz/sitemap.xml > /dev/null
