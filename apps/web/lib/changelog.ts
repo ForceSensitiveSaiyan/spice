@@ -10,6 +10,7 @@ export const CHANGELOG: ChangelogEntry[] = [
     date: "2026-02-19",
     changes: [
       { type: "added", text: "First-time tutorial overlay" },
+      { type: "added", text: "Intro splash with logo fly-in" },
       { type: "added", text: "Settings entry to relaunch tutorial" },
       { type: "added", text: "Results empty-state for new users" },
       { type: "added", text: "SEO metadata + robots/sitemap routes" },

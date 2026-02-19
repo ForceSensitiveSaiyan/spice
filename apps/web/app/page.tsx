@@ -22,6 +22,7 @@ import SkeletonLoader from "./components/SkeletonLoader";
 import CommunityStats from "./components/CommunityStats";
 import { Card, SectionHeader } from "./components/ui";
 import TutorialOverlay, { type TutorialStep } from "./components/TutorialOverlay";
+import LogoIntroOverlay from "./components/LogoIntroOverlay";
 
 // ── Constants ────────────────────────────────────────────────────
 
@@ -137,6 +138,7 @@ export default function Home() {
   const generateButtonRef = useRef<HTMLButtonElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
   const settingsButtonRef = useRef<HTMLButtonElement>(null);
+  const headerIRef = useRef<HTMLSpanElement>(null);
 
   // Inputs
   const [ingredients, setIngredients] = useState<string[]>([]);
@@ -158,6 +160,8 @@ export default function Home() {
 
   const [tutorialOpen, setTutorialOpen] = useState(false);
   const [tutorialStepIndex, setTutorialStepIndex] = useState(0);
+  const [introOpen, setIntroOpen] = useState(false);
+  const [introComplete, setIntroComplete] = useState(false);
 
   // Personal stats
   const [personalStats, setPersonalStats] = useState<PersonalStats | null>(null);
@@ -195,13 +199,28 @@ export default function Home() {
     setPersonalStats(getStats());
   }, []);
 
+  function clearIntroPending() {
+    document.documentElement.classList.remove("intro-pending");
+  }
+
   useEffect(() => {
+    const introSeen = sessionStorage.getItem("spice-intro-seen");
+    if (!introSeen) {
+      setIntroOpen(true);
+      return;
+    }
+    setIntroComplete(true);
+    clearIntroPending();
+  }, []);
+
+  useEffect(() => {
+    if (!introComplete) return;
     const seen = localStorage.getItem("spice-tutorial-seen");
     if (!seen) {
       setTutorialStepIndex(0);
       setTutorialOpen(true);
     }
-  }, []);
+  }, [introComplete]);
 
   function markTutorialSeen() {
     localStorage.setItem("spice-tutorial-seen", "true");
@@ -339,6 +358,8 @@ export default function Home() {
   const feedbackSig = makeSignature(ingredients, flavourMode);
 
   return (
+    <>
+    <div className="app-shell">
     <main className="max-w-5xl mx-auto px-4 py-6 sm:py-10">
       {/* Skip link */}
       <a
@@ -351,9 +372,17 @@ export default function Home() {
       {/* ── Top bar ──────────────────────────────────────────── */}
       <div className="sticky top-0 z-40 -mx-4 px-4 py-3 mb-2 backdrop-blur-md bg-white/80 dark:bg-[#111111]/80 border-b border-stone-200/50 dark:border-white/5">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
-          SP<span className="text-amber-600 dark:text-amber-400" style={{ fontSize: '110%', lineHeight: 1 }}>I</span>CE
-        </h1>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
+            SP
+            <span
+              ref={headerIRef}
+              className="text-amber-600 dark:text-amber-400"
+              style={{ fontSize: "110%", lineHeight: 1 }}
+            >
+              I
+            </span>
+            CE
+          </h1>
         <div className="flex items-center gap-1.5">
           <button
             onClick={() => setRecipesOpen(true)}
@@ -727,21 +756,6 @@ export default function Home() {
         stats={personalStats ?? undefined}
       />
 
-      <TutorialOverlay
-        open={tutorialOpen}
-        steps={tutorialSteps}
-        stepIndex={tutorialStepIndex}
-        onStepChange={setTutorialStepIndex}
-        onClose={() => {
-          markTutorialSeen();
-          setTutorialOpen(false);
-        }}
-        onComplete={() => {
-          markTutorialSeen();
-          setTutorialOpen(false);
-        }}
-      />
-
       <footer className="mt-8 py-4 text-center text-xs text-stone-400 dark:text-[rgba(245,245,245,0.3)]">
         &copy; 2026{" "}
         <a
@@ -761,5 +775,33 @@ export default function Home() {
         </a>
       </footer>
     </main>
+    </div>
+
+    <TutorialOverlay
+      open={tutorialOpen}
+      steps={tutorialSteps}
+      stepIndex={tutorialStepIndex}
+      onStepChange={setTutorialStepIndex}
+      onClose={() => {
+        markTutorialSeen();
+        setTutorialOpen(false);
+      }}
+      onComplete={() => {
+        markTutorialSeen();
+        setTutorialOpen(false);
+      }}
+    />
+
+    <LogoIntroOverlay
+      open={introOpen}
+      targetRef={headerIRef}
+      onComplete={() => {
+        sessionStorage.setItem("spice-intro-seen", "true");
+        setIntroOpen(false);
+        setIntroComplete(true);
+        clearIntroPending();
+      }}
+    />
+    </>
   );
 }

@@ -1,11 +1,15 @@
 import { test, expect } from "@playwright/test";
 
 test("tutorial opens on first visit and can be skipped", async ({ page }) => {
-  await page.goto("/");
-  await page.evaluate(() => {
+  await page.addInitScript(() => {
+    sessionStorage.removeItem("spice-intro-seen");
     localStorage.removeItem("spice-tutorial-seen");
   });
-  await page.reload();
+
+  await page.goto("/");
+  await expect(page.getByTestId("intro-overlay")).toBeVisible();
+  await page.getByTestId("intro-overlay").click();
+  await expect(page.getByTestId("intro-overlay")).toBeHidden();
   await expect(page.getByRole("dialog")).toBeVisible();
   await expect(page.getByText("Step 1 of")).toBeVisible();
 
@@ -16,11 +20,13 @@ test("tutorial opens on first visit and can be skipped", async ({ page }) => {
   expect(seen).toBe("true");
 
   await page.reload();
+  await expect(page.getByTestId("intro-overlay")).toBeHidden();
   await expect(page.getByRole("dialog")).toBeHidden();
 });
 
 test("starting tutorial from settings closes the panel", async ({ page }) => {
   await page.addInitScript(() => {
+    sessionStorage.setItem("spice-intro-seen", "true");
     localStorage.setItem("spice-tutorial-seen", "true");
   });
 

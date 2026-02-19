@@ -6,6 +6,7 @@ All notable changes to SPICE are documented here.
 
 ### Added
 - First-time tutorial overlay with reopen option in Settings
+- Intro splash animation with logo fly-in (once per session)
 - Results empty-state panel for new users
 - SEO metadata improvements plus `robots.txt` and `sitemap.xml`
 - Build instructions document (`INSTRUCTIONS.md`)

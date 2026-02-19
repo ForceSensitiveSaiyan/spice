@@ -36,6 +36,12 @@ html {
   transition: background-color 0.2s ease, color 0.2s ease;
 }
 
+/* Hide app shell before intro overlay */
+.intro-pending .app-shell {
+  opacity: 0;
+  pointer-events: none;
+}
+
 /* Selection colour */
 ::selection {
   background-color: var(--color-brand-200);
@@ -57,6 +63,52 @@ html {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes intro-wordmark-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes intro-wordmark-out {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+}
+
+@keyframes intro-fly {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+  65% {
+    transform: translate(var(--intro-dx, 0), var(--intro-dy, 0)) scale(0.85);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--intro-dx, 0), var(--intro-dy, 0)) scale(0.85);
+    opacity: 0;
+  }
+}
+
+@keyframes intro-overlay-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
   }
 }
 

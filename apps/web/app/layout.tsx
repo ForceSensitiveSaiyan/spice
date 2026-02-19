@@ -38,6 +38,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             __html: `(function(){try{var t=localStorage.getItem("spice-theme");if(t!=="light"){document.documentElement.classList.add("dark")}}catch(e){}})()`,
           }}
         />
+        {/* Prevent flash before intro overlay */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var s=sessionStorage.getItem("spice-intro-seen");if(!s){document.documentElement.classList.add("intro-pending")}}catch(e){}})()`,
+          }}
+        />
         {process.env.NEXT_PUBLIC_UMAMI_URL && process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID && (
           <script
             defer
