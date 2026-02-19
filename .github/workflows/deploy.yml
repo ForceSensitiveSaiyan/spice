@@ -5,7 +5,43 @@ on:
     branches: [master]
 
 jobs:
+  test-api:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install API deps
+        run: pip install -r apps/api/requirements.txt
+      - name: Run API tests
+        run: PYTHONPATH="../../packages:." python -m pytest tests/ -v
+        working-directory: apps/api
+
+  test-web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: apps/web/package-lock.json
+      - name: Install web deps
+        run: npm ci
+        working-directory: apps/web
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+        working-directory: apps/web
+      - name: Build web
+        run: npm run build
+        working-directory: apps/web
+      - name: Run web E2E tests
+        run: npm run test:e2e
+        working-directory: apps/web
+
   deploy:
+    needs: [test-api, test-web]
     runs-on: ubuntu-latest
     steps:
       - name: Deploy via SSH
@@ -18,4 +54,13 @@ jobs:
             cd ~/spice
             git pull origin master
             docker compose up -d --build
+            curl -fsS http://localhost:5000/health > /dev/null
+            curl -fsS http://localhost:3737/robots.txt > /dev/null
+            curl -fsS http://localhost:3737/sitemap.xml > /dev/null
             docker image prune -f
+
+      - name: External smoke checks
+        run: |
+          curl -fsS https://spice.aidoo.biz/ > /dev/null
+          curl -fsS https://spice.aidoo.biz/robots.txt > /dev/null
+          curl -fsS https://spice.aidoo.biz/sitemap.xml > /dev/null

@@ -2,6 +2,20 @@
 
 All notable changes to SPICE are documented here.
 
+## [0.5.2] - 2026-02-19
+
+### Added
+- First-time tutorial overlay with reopen option in Settings
+- Results empty-state panel for new users
+- SEO metadata improvements plus `robots.txt` and `sitemap.xml`
+- Build instructions document (`INSTRUCTIONS.md`)
+- Playwright E2E tests for tutorial + SEO endpoints
+- CI checks for API tests, web build, and E2E flow before deploy
+
+### Changed
+- Tutorial overlay focus restore and throttled highlight updates
+- Deploy workflow now includes post-deploy smoke checks
+
 ## [0.5.1] - 2026-02-13
 
 ### Added

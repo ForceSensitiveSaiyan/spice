@@ -1,11 +1,12 @@
 {
   "name": "spice-web",
-  "version": "0.1.0",
+  "version": "0.5.2",
   "private": true,
   "scripts": {
     "dev": "next dev --port 3737",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "html-to-image": "^1.11.13",
@@ -15,6 +16,7 @@
     "sonner": "^2.0.7"
   },
   "devDependencies": {
+    "@playwright/test": "^1.58.2",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^22",
     "@types/react": "^19",

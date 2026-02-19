@@ -6,6 +6,21 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "0.5.2",
+    date: "2026-02-19",
+    changes: [
+      { type: "added", text: "First-time tutorial overlay" },
+      { type: "added", text: "Settings entry to relaunch tutorial" },
+      { type: "added", text: "Results empty-state for new users" },
+      { type: "added", text: "SEO metadata + robots/sitemap routes" },
+      { type: "added", text: "Build instructions document" },
+      { type: "added", text: "Playwright E2E checks" },
+      { type: "added", text: "CI test gates before deploy" },
+      { type: "changed", text: "Tutorial overlay focus + highlight performance" },
+      { type: "changed", text: "Deploy workflow adds smoke checks" },
+    ],
+  },
+  {
     version: "0.5.1",
     date: "2026-02-13",
     changes: [

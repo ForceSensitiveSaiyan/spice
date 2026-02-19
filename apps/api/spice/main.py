@@ -27,7 +27,7 @@ async def lifespan(app: FastAPI):
     logger.info("Database connection closed")
 
 
-app = FastAPI(title="SPICE API", version="0.5.0", lifespan=lifespan)
+app = FastAPI(title="SPICE API", version="0.5.2", lifespan=lifespan)
 
 # CORS — restrict in production via CORS_ORIGINS env var
 _origins = os.environ.get("CORS_ORIGINS", "http://localhost:3737").split(",")
@@ -41,7 +41,7 @@ app.add_middleware(
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "version": "0.5.0"}
+    return {"status": "ok", "version": "0.5.2"}
 
 
 @app.middleware("http")

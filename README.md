@@ -19,6 +19,8 @@ Tell SPICE what ingredients you have. It gives you a step-by-step meal plan with
 - **Dual Skill Mode**: Beginner (explicit) vs Confident (intuitive)
 - **Saved Recipes**: Bookmark recipes to localStorage for later
 - **Rate Limiting**: Per-IP sliding window (configurable via env vars)
+- **First-time Tutorial**: Guided walkthrough with a re-open option in Settings
+- **SEO Ready**: Metadata, sitemap, and robots.txt routes built in
 
 ## Project structure
 
@@ -31,6 +33,8 @@ packages/
 ```
 
 ## Quick start
+
+See `INSTRUCTIONS.md` for a concise build/run checklist.
 
 ### Docker Compose (recommended)
 
@@ -109,7 +113,38 @@ See `packages/shared/schemas.py` for the full schema.
 | `DB_PATH` | `spice/data/spice.db` | SQLite database path |
 | `LOG_LEVEL` | `info` | Logging level |
 
+### Web environment
+
+| Variable | Default | Description |
+|---|---|---|
+| `NEXT_PUBLIC_SITE_URL` | `http://localhost:3737` | Base URL used for metadata, sitemap, and robots |
+
+## Deploy workflow
+
+Pushes to `master` trigger:
+
+- API tests (pytest)
+- Web build + E2E tests (Playwright)
+- VPS deploy via SSH with post-deploy smoke checks (`/health`, `/robots.txt`, `/sitemap.xml`)
+
+On the VPS, set `NEXT_PUBLIC_SITE_URL=https://spice.aidoo.biz` in the environment used by Docker Compose.
+
 ## Tests
+
+### Web (E2E)
+
+```bash
+cd apps/web
+npm run test:e2e
+```
+
+Install browser binaries if needed:
+
+```bash
+npx playwright install
+```
+
+### API
 
 ```bash
 cd apps/api

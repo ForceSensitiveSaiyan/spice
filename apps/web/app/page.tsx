@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { toast } from "sonner";
 import { fetchSuggestion } from "@/lib/api";
 import { getPantry, savePantry } from "@/lib/pantry";
@@ -21,6 +21,7 @@ import IngredientAutocomplete from "./components/IngredientAutocomplete";
 import SkeletonLoader from "./components/SkeletonLoader";
 import CommunityStats from "./components/CommunityStats";
 import { Card, SectionHeader } from "./components/ui";
+import TutorialOverlay, { type TutorialStep } from "./components/TutorialOverlay";
 
 // ── Constants ────────────────────────────────────────────────────
 
@@ -130,6 +131,13 @@ function Pill({ active, onClick, children, accent }: {
 export default function Home() {
   const { dark, toggle: toggleDark } = useDarkMode();
 
+  const ingredientsCardRef = useRef<HTMLDivElement>(null);
+  const presetsRef = useRef<HTMLDivElement>(null);
+  const preferencesCardRef = useRef<HTMLDivElement>(null);
+  const generateButtonRef = useRef<HTMLButtonElement>(null);
+  const resultsRef = useRef<HTMLDivElement>(null);
+  const settingsButtonRef = useRef<HTMLButtonElement>(null);
+
   // Inputs
   const [ingredients, setIngredients] = useState<string[]>([]);
   const [input, setInput] = useState("");
@@ -147,6 +155,9 @@ export default function Home() {
   // Panels
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [recipesOpen, setRecipesOpen] = useState(false);
+
+  const [tutorialOpen, setTutorialOpen] = useState(false);
+  const [tutorialStepIndex, setTutorialStepIndex] = useState(0);
 
   // Personal stats
   const [personalStats, setPersonalStats] = useState<PersonalStats | null>(null);
@@ -183,6 +194,60 @@ export default function Home() {
     updateStreak();
     setPersonalStats(getStats());
   }, []);
+
+  useEffect(() => {
+    const seen = localStorage.getItem("spice-tutorial-seen");
+    if (!seen) {
+      setTutorialStepIndex(0);
+      setTutorialOpen(true);
+    }
+  }, []);
+
+  function markTutorialSeen() {
+    localStorage.setItem("spice-tutorial-seen", "true");
+  }
+
+  const tutorialSteps: TutorialStep[] = useMemo(
+    () => [
+      {
+        id: "ingredients",
+        title: "Add ingredients you have",
+        description: "Type what is in your kitchen and tap Add to build your list.",
+        targetRef: ingredientsCardRef,
+      },
+      {
+        id: "presets",
+        title: "Try presets or the challenge",
+        description: "Pick a quick preset or the Budget Challenge to get started fast.",
+        targetRef: presetsRef,
+      },
+      {
+        id: "preferences",
+        title: "Set flavour and preferences",
+        description: "Tune diet, time, spice, and equipment to match your mood.",
+        targetRef: preferencesCardRef,
+      },
+      {
+        id: "generate",
+        title: "Generate your plan",
+        description: "Ask SPICE what you can make and get a full step-by-step plan.",
+        targetRef: generateButtonRef,
+      },
+      {
+        id: "results",
+        title: "Your plan appears here",
+        description: "After you generate, this area fills with Cook Mode, steps, and upgrades.",
+        targetRef: resultsRef,
+      },
+      {
+        id: "pantry",
+        title: "Save pantry staples",
+        description: "Open Settings to save staples so SPICE uses them automatically.",
+        targetRef: settingsButtonRef,
+      },
+    ],
+    []
+  );
 
   function addIngredient(value?: string) {
     const trimmed = (value || input).trim().toLowerCase();
@@ -301,6 +366,7 @@ export default function Home() {
           </button>
           <button
             onClick={() => setSettingsOpen(true)}
+            ref={settingsButtonRef}
             className="p-2 rounded-lg text-stone-400 dark:text-[rgba(245,245,245,0.5)] hover:text-stone-800 dark:hover:text-[#F5F5F5] hover:bg-stone-100 dark:hover:bg-white/5 transition-colors duration-150"
             aria-label="Settings"
           >
@@ -335,6 +401,7 @@ export default function Home() {
       <div className="space-y-3 lg:sticky lg:top-16">
 
         {/* Card 1: Ingredients */}
+        <div ref={ingredientsCardRef}>
         <Card>
           <SectionHeader>Ingredients you have</SectionHeader>
           <div className="flex gap-2">
@@ -372,7 +439,7 @@ export default function Home() {
           )}
 
           {/* Presets */}
-          <div className="flex flex-wrap gap-1.5 mt-3 pt-3 border-t border-stone-100 dark:border-white/5">
+          <div ref={presetsRef} className="flex flex-wrap gap-1.5 mt-3 pt-3 border-t border-stone-100 dark:border-white/5">
             {visiblePresets.map((p) => (
               <Pill key={p.label} onClick={() => applyPreset(p)}>{p.label}</Pill>
             ))}
@@ -382,8 +449,10 @@ export default function Home() {
             )}
           </div>
         </Card>
+        </div>
 
         {/* Card 2: Flavour & Constraints */}
+        <div ref={preferencesCardRef}>
         <Card>
           <SectionHeader>Flavour &amp; Preferences</SectionHeader>
 
@@ -444,11 +513,13 @@ export default function Home() {
             </div>
           </div>
         </Card>
+        </div>
 
         {/* Submit */}
         <button
           onClick={handleSubmit}
           disabled={loading}
+          ref={generateButtonRef}
           className="w-full bg-[#F5F5F5] dark:bg-[#F5F5F5] text-[#111111] py-3 rounded-xl text-sm font-semibold hover:bg-white dark:hover:bg-white disabled:opacity-50 transition-colors duration-150"
         >
           {loading ? LOADING_MESSAGES[loadingMsgIdx] : "What can I make?"}
@@ -467,7 +538,15 @@ export default function Home() {
         )}
 
         {/* ── Results ─────────────────────────────────────────── */}
-        <div id="results" aria-live="polite">
+        <div id="results" aria-live="polite" ref={resultsRef}>
+        {!loading && !result && (
+          <Card className="animate-fade-in-up">
+            <SectionHeader>Results</SectionHeader>
+            <p className="text-sm text-stone-500 dark:text-[rgba(245,245,245,0.6)]">
+              Your plan will appear here after you generate a recipe.
+            </p>
+          </Card>
+        )}
         {result && (
           <div className="space-y-3">
             {result.rejection ? (
@@ -633,6 +712,11 @@ export default function Home() {
       <SettingsPanel
         open={settingsOpen}
         onClose={() => setSettingsOpen(false)}
+        onOpenTutorial={() => {
+          setSettingsOpen(false);
+          setTutorialStepIndex(0);
+          setTutorialOpen(true);
+        }}
         pantry={pantry}
         pantryInput={pantryInput}
         onPantryInputChange={setPantryInput}
@@ -641,6 +725,21 @@ export default function Home() {
         skillMode={skillMode}
         onSkillModeChange={setSkillMode}
         stats={personalStats ?? undefined}
+      />
+
+      <TutorialOverlay
+        open={tutorialOpen}
+        steps={tutorialSteps}
+        stepIndex={tutorialStepIndex}
+        onStepChange={setTutorialStepIndex}
+        onClose={() => {
+          markTutorialSeen();
+          setTutorialOpen(false);
+        }}
+        onComplete={() => {
+          markTutorialSeen();
+          setTutorialOpen(false);
+        }}
       />
 
       <footer className="mt-8 py-4 text-center text-xs text-stone-400 dark:text-[rgba(245,245,245,0.3)]">

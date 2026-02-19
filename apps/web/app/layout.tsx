@@ -6,13 +6,22 @@ import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"], display: "swap" });
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3737";
+
 export const metadata: Metadata = {
   title: "SPICE – Smart Pantry Intelligence & Culinary Engine",
   description: "Turn your ingredients into a step-by-step meal plan with timing, flavour reasoning, and upgrade suggestions.",
+  metadataBase: new URL(siteUrl),
   openGraph: {
     title: "SPICE – Smart Pantry Intelligence & Culinary Engine",
     description: "Turn your ingredients into a step-by-step meal plan with timing, flavour reasoning, and upgrade suggestions.",
     type: "website",
+    url: "/",
+  },
+  twitter: {
+    card: "summary",
+    title: "SPICE – Smart Pantry Intelligence & Culinary Engine",
+    description: "Turn your ingredients into a step-by-step meal plan with timing, flavour reasoning, and upgrade suggestions.",
   },
   other: {
     "theme-color": "#f59e0b",

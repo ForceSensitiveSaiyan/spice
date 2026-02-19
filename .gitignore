@@ -9,6 +9,8 @@ dist/
 *.egg-info/
 .pytest_cache/
 *.db
+playwright-report/
+test-results/
 
 # IDE
 .vscode/

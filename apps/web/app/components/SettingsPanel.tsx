@@ -20,6 +20,7 @@ const TYPE_COLORS: Record<string, string> = {
 interface Props {
   open: boolean;
   onClose: () => void;
+  onOpenTutorial: () => void;
   pantry: string[];
   pantryInput: string;
   onPantryInputChange: (value: string) => void;
@@ -33,6 +34,7 @@ interface Props {
 export default function SettingsPanel({
   open,
   onClose,
+  onOpenTutorial,
   pantry,
   pantryInput,
   onPantryInputChange,
@@ -185,6 +187,20 @@ export default function SettingsPanel({
                     </span>
                   )}
                 </div>
+              </section>
+
+              {/* Tutorial */}
+              <section>
+                <label className="block text-sm font-medium mb-2">Tutorial</label>
+                <p className="text-xs text-stone-400 dark:text-stone-500 mb-2">
+                  A quick guided tour for first-time users.
+                </p>
+                <button
+                  onClick={onOpenTutorial}
+                  className="text-sm px-4 py-2 rounded-full border border-amber-400/60 dark:border-amber-500/60 text-amber-700 dark:text-amber-300 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors"
+                >
+                  Start tutorial
+                </button>
               </section>
             </div>
 
