@@ -16,6 +16,7 @@ def init_db() -> None:
     if _DB_PATH != ":memory:":
         os.makedirs(os.path.dirname(_DB_PATH), exist_ok=True)
     _conn = sqlite3.connect(_DB_PATH, check_same_thread=False)
+    _conn.execute("PRAGMA foreign_keys=ON")
     _conn.execute("PRAGMA journal_mode=WAL")
     _conn.executescript("""
         CREATE TABLE IF NOT EXISTS combos (

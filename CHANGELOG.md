@@ -2,6 +2,35 @@
 
 All notable changes to SPICE are documented here.
 
+## [0.6.0] - 2026-03-06
+
+### Added
+- Security headers middleware on API (`X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`)
+- Security headers on web via `next.config.ts`
+- SQLite foreign key constraint enforcement (`PRAGMA foreign_keys=ON`)
+- Feedback endpoint input validation (combo_signature format check)
+- Max ingredient limit (50) in request schema
+- Rate limiter store cap (10,000 IPs) to prevent unbounded memory growth
+- Configurable OpenAI model via `OPENAI_MODEL` env var
+- API request timeout (30s) on frontend fetch calls
+- Double-click protection on feedback buttons
+- Docker Compose resource limits on all services
+- 12 new API tests (54 total): security headers, CORS rejection, feedback validation, input limits, IP extraction, JSON parser edge cases
+
+### Changed
+- IP extraction now uses first entry from `X-Forwarded-For` (prevents spoofing via chained proxies)
+- Umami analytics port no longer exposed publicly (internal-only via `expose`)
+- OpenAI retry wrapped in try-except (no longer crashes on double parse failure)
+- Streak calculation uses local timezone instead of UTC
+- Ingredient remove buttons have proper `aria-label` for screen readers
+- Version centralised in `main.py` (`__version__`)
+- README rewritten with security section, updated test count, and new env vars
+
+### Fixed
+- FK constraint violation: feedback for non-existent combos now correctly rejected
+- Tests no longer leak OpenAI API key from `.env` via `load_dotenv()`
+- Timezone bug in daily streak calculation (UTC vs local date mismatch)
+
 ## [0.5.2] - 2026-02-19
 
 ### Added

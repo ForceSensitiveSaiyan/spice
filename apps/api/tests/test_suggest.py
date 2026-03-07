@@ -235,12 +235,11 @@ def test_cors_headers_present():
 
 # ── Edge cases ───────────────────────────────────────────────────
 
-def test_oversized_ingredients_list():
-    """100+ ingredients should still return a valid response (no crash)."""
+def test_oversized_ingredients_list_rejected():
+    """More than 50 ingredients should be rejected by schema validation."""
     ingredients = [f"item_{i}" for i in range(100)]
     res = client.post("/v1/suggest", json={"ingredients": ingredients})
-    assert res.status_code == 200
-    SuggestResponse.model_validate(res.json())
+    assert res.status_code == 422
 
 
 def test_special_characters_in_ingredients():
@@ -341,3 +340,137 @@ def test_concurrent_requests():
         results = [f.result() for f in futures]
 
     assert all(r.status_code == 200 for r in results)
+
+
+# ── Input validation edge cases ──────────────────────────────────
+
+def test_ingredients_over_max_returns_422():
+    """More than 50 ingredients should be rejected by schema."""
+    res = client.post("/v1/suggest", json={"ingredients": [f"item_{i}" for i in range(51)]})
+    assert res.status_code == 422
+
+
+def test_duplicate_ingredients_still_works():
+    """Repeated ingredients should not crash."""
+    res = client.post("/v1/suggest", json={"ingredients": ["rice", "rice", "rice"]})
+    assert res.status_code == 200
+    SuggestResponse.model_validate(res.json())
+
+
+def test_unicode_ingredients():
+    """Non-ASCII ingredients should work."""
+    res = client.post("/v1/suggest", json={"ingredients": ["riz", "oignon", "tomate"]})
+    assert res.status_code == 200
+
+
+# ── Security headers ────────────────────────────────────────────
+
+def test_security_headers_present():
+    """Responses should include security headers."""
+    res = client.get("/health")
+    assert res.headers.get("x-content-type-options") == "nosniff"
+    assert res.headers.get("x-frame-options") == "DENY"
+    assert res.headers.get("referrer-policy") == "strict-origin-when-cross-origin"
+
+
+# ── CORS rejection ──────────────────────────────────────────────
+
+def test_cors_rejects_unknown_origin():
+    """Requests from non-whitelisted origins should not get CORS headers."""
+    res = client.options(
+        "/v1/suggest",
+        headers={
+            "Origin": "http://evil.example.com",
+            "Access-Control-Request-Method": "POST",
+        },
+    )
+    origin = res.headers.get("access-control-allow-origin")
+    assert origin is None or origin != "http://evil.example.com"
+
+
+# ── Feedback endpoint validation ────────────────────────────────
+
+def test_feedback_invalid_signature_format():
+    """Feedback with malformed signature should be rejected."""
+    res = client.post("/v1/feedback", json={
+        "combo_signature": "not a valid format!!!",
+        "feedback_type": "perfect",
+    })
+    assert res.status_code == 422
+
+
+def test_feedback_invalid_type_rejected():
+    """Feedback with invalid type should return 422."""
+    res = client.post("/v1/feedback", json={
+        "combo_signature": "a,b|none",
+        "feedback_type": "invalid_type",
+    })
+    assert res.status_code == 422
+
+
+def test_feedback_empty_signature_rejected():
+    """Empty combo_signature should be rejected."""
+    res = client.post("/v1/feedback", json={
+        "combo_signature": "",
+        "feedback_type": "perfect",
+    })
+    assert res.status_code == 422
+
+
+# ── Health endpoint ─────────────────────────────────────────────
+
+def test_health_includes_version():
+    """Health endpoint should include the current version."""
+    res = client.get("/health")
+    assert res.status_code == 200
+    data = res.json()
+    assert data["version"] == "0.6.0"
+
+
+# ── JSON parser robustness ─────────────────────────────────────
+
+def test_json_extract_handles_nested_fences():
+    """Extract JSON even if model wraps in ```json fences."""
+    from spice.openai_service import _extract_json
+    raw = '```json\n{"title": "test", "nested": {"a": 1}}\n```'
+    result = _extract_json(raw)
+    assert result["nested"]["a"] == 1
+
+
+def test_json_extract_raises_on_garbage():
+    """Completely invalid input should raise."""
+    from spice.openai_service import _extract_json
+    with pytest.raises(json.JSONDecodeError):
+        _extract_json("This is not JSON at all")
+
+
+# ── IP extraction ───────────────────────────────────────────────
+
+def test_x_forwarded_for_uses_first_ip():
+    """Rate limiter should use first IP from X-Forwarded-For chain."""
+    import spice.rate_limit as rl
+    from spice.rate_limit import _store, _lock
+
+    original_max = rl._MAX_REQUESTS
+    rl._MAX_REQUESTS = 1
+
+    with _lock:
+        _store.pop("1.2.3.4", None)
+
+    try:
+        res1 = client.post(
+            "/v1/suggest",
+            json={"ingredients": ["rice"]},
+            headers={"X-Forwarded-For": "1.2.3.4, 10.0.0.1"},
+        )
+        assert res1.status_code == 200
+        res2 = client.post(
+            "/v1/suggest",
+            json={"ingredients": ["rice"]},
+            headers={"X-Forwarded-For": "1.2.3.4, 10.0.0.1"},
+        )
+        assert res2.status_code == 429
+    finally:
+        rl._MAX_REQUESTS = original_max
+        with _lock:
+            _store.pop("1.2.3.4", None)

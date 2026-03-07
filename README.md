@@ -21,6 +21,7 @@ Tell SPICE what ingredients you have. It gives you a step-by-step meal plan with
 - **Rate Limiting**: Per-IP sliding window (configurable via env vars)
 - **First-time Tutorial**: Guided walkthrough with a re-open option in Settings
 - **SEO Ready**: Metadata, sitemap, and robots.txt routes built in
+- **Security Headers**: X-Content-Type-Options, X-Frame-Options, Referrer-Policy on API and web
 
 ## Project structure
 
@@ -85,6 +86,8 @@ Without `OPENAI_API_KEY`, the API returns mock responses.
 }
 ```
 
+`ingredients` accepts 1–50 items.
+
 **Response:** Includes `title`, `prep_time_minutes`, `steps` (with `t_seconds` + `tip`), `why_this_works`, `upgrade_ladder` (pantry/if_you_have/one_pound_shop), `minimal_rescue`, `pantry_used`, `notes`, `safety`, `community` (combo_count, feedback_breakdown, total_feedback).
 
 ### `POST /v1/feedback`
@@ -98,6 +101,8 @@ Without `OPENAI_API_KEY`, the API returns mock responses.
 }
 ```
 
+`combo_signature` must match the format `ingredient1,ingredient2,...|flavour_mode`. Valid `feedback_type` values: `too_salty`, `too_bland`, `perfect`, `needs_spice`.
+
 **Response:** `{ "status": "ok", "feedback_breakdown": { "perfect": 100 }, "total_feedback": 1 }`
 
 See `packages/shared/schemas.py` for the full schema.
@@ -107,6 +112,7 @@ See `packages/shared/schemas.py` for the full schema.
 | Variable | Default | Description |
 |---|---|---|
 | `OPENAI_API_KEY` | — | OpenAI key (omit for mock mode) |
+| `OPENAI_MODEL` | `gpt-4o-mini` | OpenAI model to use for suggestions |
 | `CORS_ORIGINS` | `http://localhost:3737` | Comma-separated allowed origins |
 | `RATE_LIMIT_MAX` | `20` | Max requests per IP per window |
 | `RATE_LIMIT_WINDOW` | `3600` | Rate limit window in seconds |
@@ -131,6 +137,15 @@ On the VPS, set `NEXT_PUBLIC_SITE_URL=https://spice.aidoo.biz` in the environmen
 
 ## Tests
 
+### API
+
+```bash
+cd apps/api
+PYTHONPATH="../../packages:." python -m pytest tests/ -v
+```
+
+54 tests covering: input validation (empty, oversized, unicode, special chars), schema compliance, step ordering, upgrade gating, minimal rescue, JSON parsing robustness, feedback mapping, calorie estimates, rejection handling, health/CORS, community tracking (combo counting, feedback endpoint, 404 on unknown combo, signature format validation), rate limiting (429 response, IP extraction from X-Forwarded-For), database operations (hashing, upsert, feedback breakdown, FK constraint enforcement), rate limiter logic (expiry, cleanup, IP isolation, store cap), security headers (nosniff, frame deny, referrer policy).
+
 ### Web (E2E)
 
 ```bash
@@ -144,11 +159,13 @@ Install browser binaries if needed:
 npx playwright install
 ```
 
-### API
+## Security
 
-```bash
-cd apps/api
-PYTHONPATH="../../packages:." python -m pytest tests/ -v
-```
-
-42 tests covering: input validation, schema compliance, step ordering, upgrade gating, minimal rescue, JSON parsing robustness, feedback mapping, calorie estimates, rejection handling, health/CORS, community tracking (combo counting, feedback endpoint, 404 on unknown combo), rate limiting (429 response), database operations (hashing, upsert, feedback breakdown), rate limiter logic (expiry, cleanup, IP isolation).
+- **Security headers** on both API (middleware) and web (next.config.ts): `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy: strict-origin-when-cross-origin`
+- **CORS** locked to configured origins (no wildcards)
+- **Rate limiting** per-IP with capped in-memory store (prevents memory exhaustion)
+- **Input validation** via Pydantic schemas with max ingredient count (50)
+- **Feedback validation** rejects malformed combo signatures before processing
+- **SQLite FK constraints** enforced to maintain data integrity
+- **Docker** containers run as non-root users with resource limits
+- **Umami analytics** port not exposed publicly (internal only)

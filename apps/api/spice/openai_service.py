@@ -21,6 +21,7 @@ _PROMPT_PATH = Path(__file__).parent / "prompts" / "suggest.md"
 _PROMPT_TEMPLATE = _PROMPT_PATH.read_text(encoding="utf-8")
 
 _client: AsyncOpenAI | None = None
+_MODEL = os.environ.get("OPENAI_MODEL", "gpt-4o-mini")
 
 
 def _get_client() -> AsyncOpenAI:
@@ -78,7 +79,7 @@ async def generate_suggestion(req: SuggestRequest) -> SuggestResponse:
     prompt = _build_prompt(req)
 
     response = await client.chat.completions.create(
-        model="gpt-4o-mini",
+        model=_MODEL,
         messages=[
             {
                 "role": "system",
@@ -105,18 +106,22 @@ async def generate_suggestion(req: SuggestRequest) -> SuggestResponse:
     except (json.JSONDecodeError, ValidationError) as exc:
         logger.warning("Failed to parse OpenAI response: %s\nRaw: %s", exc, raw[:500])
         # Retry with stricter prompt
-        retry = await client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[
-                {
-                    "role": "system",
-                    "content": "Fix the following into valid JSON matching the SPICE schema. Return ONLY valid JSON.",
-                },
-                {"role": "user", "content": raw},
-            ],
-            temperature=0.0,
-            max_tokens=2000,
-        )
-        retry_raw = retry.choices[0].message.content or ""
-        data = _extract_json(retry_raw)
-        return SuggestResponse.model_validate(data)
+        try:
+            retry = await client.chat.completions.create(
+                model=_MODEL,
+                messages=[
+                    {
+                        "role": "system",
+                        "content": "Fix the following into valid JSON matching the SPICE schema. Return ONLY valid JSON.",
+                    },
+                    {"role": "user", "content": raw},
+                ],
+                temperature=0.0,
+                max_tokens=2000,
+            )
+            retry_raw = retry.choices[0].message.content or ""
+            data = _extract_json(retry_raw)
+            return SuggestResponse.model_validate(data)
+        except Exception as retry_exc:
+            logger.error("Retry also failed: %s", retry_exc)
+            raise

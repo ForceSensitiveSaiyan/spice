@@ -13,6 +13,8 @@ from fastapi.responses import JSONResponse
 from spice.db import init_db, close_db
 from spice.routes import router
 
+__version__ = "0.6.0"
+
 log_level = os.environ.get("LOG_LEVEL", "info").upper()
 logging.basicConfig(level=getattr(logging, log_level, logging.INFO), format="%(asctime)s %(levelname)s %(message)s")
 logger = logging.getLogger("spice")
@@ -27,7 +29,7 @@ async def lifespan(app: FastAPI):
     logger.info("Database connection closed")
 
 
-app = FastAPI(title="SPICE API", version="0.5.2", lifespan=lifespan)
+app = FastAPI(title="SPICE API", version=__version__, lifespan=lifespan)
 
 # CORS — restrict in production via CORS_ORIGINS env var
 _origins = os.environ.get("CORS_ORIGINS", "http://localhost:3737").split(",")
@@ -41,7 +43,16 @@ app.add_middleware(
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "version": "0.5.2"}
+    return {"status": "ok", "version": __version__}
+
+
+@app.middleware("http")
+async def security_headers(request: Request, call_next):
+    response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    return response
 
 
 @app.middleware("http")

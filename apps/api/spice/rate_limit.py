@@ -12,6 +12,7 @@ _store: dict[str, list[float]] = {}
 _lock = threading.Lock()
 _last_cleanup = 0.0
 _CLEANUP_INTERVAL = 300  # purge stale IPs every 5 minutes
+_MAX_STORE_SIZE = 10000  # cap to prevent unbounded memory growth
 
 
 def check_rate_limit(ip: str) -> bool:
@@ -22,10 +23,15 @@ def check_rate_limit(ip: str) -> bool:
 
     with _lock:
         # Periodic cleanup: remove IPs with no recent activity
-        if now - _last_cleanup > _CLEANUP_INTERVAL:
+        if now - _last_cleanup > _CLEANUP_INTERVAL or len(_store) > _MAX_STORE_SIZE:
             stale = [k for k, v in _store.items() if not v or v[-1] <= cutoff]
             for k in stale:
                 del _store[k]
+            # If still over cap, evict oldest entries
+            if len(_store) > _MAX_STORE_SIZE:
+                by_age = sorted(_store.items(), key=lambda kv: kv[1][-1] if kv[1] else 0)
+                for k, _ in by_age[:len(_store) - _MAX_STORE_SIZE]:
+                    del _store[k]
             _last_cleanup = now
 
         timestamps = _store.get(ip, [])

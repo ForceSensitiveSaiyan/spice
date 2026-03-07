@@ -458,6 +458,7 @@ export default function Home() {
                   {item}
                   <button
                     onClick={() => removeIngredient(item)}
+                    aria-label={`Remove ${item}`}
                     className="text-amber-600 dark:text-amber-400 hover:text-amber-900 dark:hover:text-amber-100 ml-0.5"
                   >
                     &times;

@@ -29,7 +29,7 @@ class Constraints(BaseModel):
 
 
 class SuggestRequest(BaseModel):
-    ingredients: list[str] = Field(..., min_length=1)
+    ingredients: list[str] = Field(..., min_length=1, max_length=50)
     constraints: Constraints = Field(default_factory=Constraints)
     pantry_items: list[str] = Field(default_factory=list)
     feedback_history: list[FeedbackType] = Field(default_factory=list)

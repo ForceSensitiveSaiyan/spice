@@ -1,5 +1,7 @@
 """Tests for the db module."""
 
+import pytest
+
 from spice.db import (
     make_combo_hash,
     record_combo,
@@ -70,9 +72,10 @@ def test_feedback_breakdown_percentages():
     assert breakdown["too_bland"] == 25
 
 
-def test_record_feedback_for_nonexistent_combo():
-    """Feedback for a combo that doesn't exist should still insert (FK not enforced in SQLite by default)."""
+def test_record_feedback_for_nonexistent_combo_raises():
+    """Feedback for a combo that doesn't exist should fail with FK constraint."""
     import hashlib
-    h = hashlib.sha256(b"nonexistent").hexdigest()
-    # Should not raise
-    record_feedback(h, "perfect")
+    import sqlite3
+    h = hashlib.sha256(b"nonexistent_fk_test").hexdigest()
+    with pytest.raises(sqlite3.IntegrityError):
+        record_feedback(h, "perfect")

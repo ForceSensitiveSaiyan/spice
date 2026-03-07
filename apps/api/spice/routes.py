@@ -3,6 +3,7 @@
 import asyncio
 import hashlib
 import logging
+import re
 import sys
 import os
 
@@ -32,11 +33,22 @@ from spice.suggest import get_suggestion
 logger = logging.getLogger("spice.routes")
 router = APIRouter()
 
+# Combo signature format: "ingredient1,ingredient2,...|flavour_mode"
+_COMBO_SIG_RE = re.compile(r"^[\w\s,.\-]+\|[\w]+$")
+
+
+def _extract_client_ip(request: Request) -> str:
+    """Extract client IP, using only the first entry from X-Forwarded-For."""
+    forwarded = request.headers.get("x-forwarded-for")
+    if forwarded:
+        return forwarded.split(",")[0].strip()
+    return request.client.host if request.client else "unknown"
+
 
 @router.post("/suggest", response_model=SuggestResponse)
 async def suggest(req: SuggestRequest, request: Request) -> SuggestResponse:
     # Rate limit by client IP
-    client_ip = request.headers.get("x-forwarded-for", request.client.host if request.client else "unknown")
+    client_ip = _extract_client_ip(request)
     if not check_rate_limit(client_ip):
         raise HTTPException(status_code=429, detail="Rate limit exceeded. Please try again later.")
 
@@ -70,6 +82,10 @@ async def suggest(req: SuggestRequest, request: Request) -> SuggestResponse:
 
 @router.post("/feedback", response_model=FeedbackResponse)
 async def feedback(req: FeedbackRequest) -> FeedbackResponse:
+    # Validate signature format before hashing
+    if not _COMBO_SIG_RE.match(req.combo_signature):
+        raise HTTPException(status_code=422, detail="Invalid combo_signature format")
+
     h = hashlib.sha256(req.combo_signature.encode()).hexdigest()
     if not combo_exists(h):
         raise HTTPException(status_code=404, detail="Unknown combo")

@@ -20,6 +20,7 @@ interface Props {
 
 export default function FeedbackButtons({ signature, onCommunityUpdate }: Props) {
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   if (submitted) return null;
 
@@ -30,7 +31,10 @@ export default function FeedbackButtons({ signature, onCommunityUpdate }: Props)
         {OPTIONS.map((opt) => (
           <button
             key={opt.value}
+            disabled={submitting}
             onClick={async () => {
+              if (submitting) return;
+              setSubmitting(true);
               saveFeedback(signature, opt.value);
               setSubmitted(true);
               toast.success(`Noted: ${opt.label}`);
@@ -43,7 +47,7 @@ export default function FeedbackButtons({ signature, onCommunityUpdate }: Props)
                 onCommunityUpdate(res.feedback_breakdown, res.total_feedback);
               }
             }}
-            className="text-xs px-3 py-1.5 rounded-full border border-white/10 text-stone-500 dark:text-[rgba(245,245,245,0.5)] hover:text-stone-800 dark:hover:text-[#F5F5F5] hover:border-white/20 transition-colors duration-150 whitespace-nowrap"
+            className="text-xs px-3 py-1.5 rounded-full border border-white/10 text-stone-500 dark:text-[rgba(245,245,245,0.5)] hover:text-stone-800 dark:hover:text-[#F5F5F5] hover:border-white/20 transition-colors duration-150 whitespace-nowrap disabled:opacity-50"
           >
             {opt.label}
           </button>
