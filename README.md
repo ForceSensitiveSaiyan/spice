@@ -168,4 +168,4 @@ npx playwright install
 - **Feedback validation** rejects malformed combo signatures before processing
 - **SQLite FK constraints** enforced to maintain data integrity
 - **Docker** containers run as non-root users with resource limits
-- **Umami analytics** port not exposed publicly (internal only)
+- **Umami analytics** on port 3000 (browser tracking script requires public access)

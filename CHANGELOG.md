@@ -19,7 +19,7 @@ All notable changes to SPICE are documented here.
 
 ### Changed
 - IP extraction now uses first entry from `X-Forwarded-For` (prevents spoofing via chained proxies)
-- Umami analytics port no longer exposed publicly (internal-only via `expose`)
+- Umami analytics port kept public (required for browser-side tracking script)
 - OpenAI retry wrapped in try-except (no longer crashes on double parse failure)
 - Streak calculation uses local timezone instead of UTC
 - Ingredient remove buttons have proper `aria-label` for screen readers

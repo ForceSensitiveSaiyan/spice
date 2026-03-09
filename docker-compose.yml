@@ -53,8 +53,8 @@ services:
 
   umami:
     image: ghcr.io/umami-software/umami:postgresql-latest
-    expose:
-      - "3000"
+    ports:
+      - "3000:3000"
     environment:
       DATABASE_URL: postgresql://umami:${UMAMI_DB_PASSWORD:-umami}@umami-db:5432/umami
       APP_SECRET: ${UMAMI_APP_SECRET:-replace-me-with-a-random-string}
