@@ -1,5 +1,8 @@
 """Suggestion service – returns a meal plan from ingredients."""
 
+import hashlib
+import json
+import logging
 import os
 import sys
 
@@ -14,6 +17,8 @@ from shared.schemas import (
     Upgrade,
     UpgradeLadder,
 )
+
+logger = logging.getLogger("spice.suggest")
 
 # ── Mock data ─────────────────────────────────────────────────────
 
@@ -146,11 +151,49 @@ def _use_openai() -> bool:
     return bool(os.environ.get("OPENAI_API_KEY"))
 
 
+def _cache_key(req: SuggestRequest) -> str:
+    """Deterministic key over every input that affects a generation.
+
+    Uses the same ingredient normalization as the community combo hash, but –
+    unlike that coarse (ingredients + flavour) signature – folds in the full
+    constraint set, pantry, feedback, and model so different requests never
+    collide on a cached result.
+    """
+    from spice.db import normalize_ingredient
+
+    payload = {
+        "ingredients": sorted(normalize_ingredient(i) for i in req.ingredients),
+        "diet": req.constraints.diet,
+        "time_minutes": req.constraints.time_minutes,
+        "equipment": sorted(e.strip().lower() for e in req.constraints.equipment),
+        "spice_level": req.constraints.spice_level,
+        "flavour_mode": req.constraints.flavour_mode,
+        "skill_mode": req.constraints.skill_mode,
+        "pantry_items": sorted(normalize_ingredient(p) for p in req.pantry_items),
+        "feedback_history": sorted(req.feedback_history),
+        "model": os.environ.get("OPENAI_MODEL", "gpt-4o"),
+    }
+    blob = json.dumps(payload, sort_keys=True, separators=(",", ":"))
+    return hashlib.sha256(blob.encode()).hexdigest()
+
+
 async def get_suggestion(req: SuggestRequest) -> SuggestResponse:
     """Return a meal suggestion. Uses OpenAI if API key is set, otherwise mock data."""
     if _use_openai():
+        from spice.db import get_cached_generation, store_generation
         from spice.openai_service import generate_suggestion
-        return await generate_suggestion(req)
+
+        key = _cache_key(req)
+        cached = get_cached_generation(key)
+        if cached is not None:
+            logger.info("Generation cache hit")
+            return SuggestResponse.model_validate_json(cached)
+
+        result = await generate_suggestion(req)
+        # community stats are layered on later in the route, so the cached
+        # blob stays free of per-request dynamic data.
+        store_generation(key, result.model_dump_json())
+        return result
 
     # Minimal rescue: single ingredient
     if len(req.ingredients) <= 1:

@@ -9,9 +9,12 @@ async function proxy(req: NextRequest) {
   const url = `${BACKEND()}${backendPath}${search}`;
 
   const headers = new Headers(req.headers);
-  // Remove host / next-specific headers so they don't confuse the backend
-  headers.delete("host");
-  headers.delete("connection");
+  // Strip hop-by-hop and body-framing headers. The upstream fetch recomputes
+  // content-length from the forwarded body, and undici rejects `expect`
+  // (e.g. `Expect: 100-continue` from some HTTP clients) outright.
+  for (const h of ["host", "connection", "expect", "content-length", "transfer-encoding"]) {
+    headers.delete(h);
+  }
 
   const init: RequestInit = {
     method: req.method,

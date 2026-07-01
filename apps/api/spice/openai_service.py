@@ -21,7 +21,11 @@ _PROMPT_PATH = Path(__file__).parent / "prompts" / "suggest.md"
 _PROMPT_TEMPLATE = _PROMPT_PATH.read_text(encoding="utf-8")
 
 _client: AsyncOpenAI | None = None
-_MODEL = os.environ.get("OPENAI_MODEL", "gpt-4o-mini")
+_MODEL = os.environ.get("OPENAI_MODEL", "gpt-4o")
+
+# Guardrails for model-estimated numbers (see _sanitize).
+_MAX_CALORIES = 3000
+_MIN_CALORIES = 10
 
 
 def _get_client() -> AsyncOpenAI:
@@ -62,7 +66,11 @@ def _build_prompt(req: SuggestRequest) -> str:
 
 
 def _extract_json(text: str) -> dict:
-    """Extract JSON from model response, handling markdown fences."""
+    """Extract JSON from model response, handling markdown fences.
+
+    JSON mode makes fenced output unlikely, but this stays as a defensive
+    fallback for models/paths that ignore response_format.
+    """
     text = text.strip()
     if text.startswith("```"):
         lines = text.split("\n")
@@ -71,6 +79,28 @@ def _extract_json(text: str) -> dict:
             lines = lines[:-1]
         text = "\n".join(lines)
     return json.loads(text)
+
+
+def _sanitize(resp: SuggestResponse, req: SuggestRequest) -> SuggestResponse:
+    """Clamp model-estimated numbers into sane ranges.
+
+    An LLM will occasionally return a wildly off cook time or calorie count;
+    in a food app that reads as a credibility (and mild safety) problem.
+    """
+    # Prep time must not exceed the user's requested ceiling.
+    max_time = req.constraints.time_minutes
+    if max_time and resp.prep_time_minutes > max_time:
+        resp.prep_time_minutes = max_time
+    if resp.prep_time_minutes < 0:
+        resp.prep_time_minutes = 0
+
+    # Drop implausible calorie estimates rather than show nonsense.
+    if resp.calories_estimate is not None and not (
+        _MIN_CALORIES <= resp.calories_estimate <= _MAX_CALORIES
+    ):
+        resp.calories_estimate = None
+
+    return resp
 
 
 async def generate_suggestion(req: SuggestRequest) -> SuggestResponse:
@@ -92,17 +122,14 @@ async def generate_suggestion(req: SuggestRequest) -> SuggestResponse:
         ],
         temperature=0.7,
         max_tokens=2000,
+        response_format={"type": "json_object"},
     )
 
     raw = response.choices[0].message.content or ""
     logger.info("OpenAI raw response length: %d chars", len(raw))
 
     try:
-        data = _extract_json(raw)
-        # If the LLM flagged a rejection, return a minimal valid response
-        if data.get("rejection"):
-            return SuggestResponse(rejection=data["rejection"])
-        return SuggestResponse.model_validate(data)
+        return _parse(raw, req)
     except (json.JSONDecodeError, ValidationError) as exc:
         logger.warning("Failed to parse OpenAI response: %s\nRaw: %s", exc, raw[:500])
         # Retry with stricter prompt
@@ -118,10 +145,19 @@ async def generate_suggestion(req: SuggestRequest) -> SuggestResponse:
                 ],
                 temperature=0.0,
                 max_tokens=2000,
+                response_format={"type": "json_object"},
             )
             retry_raw = retry.choices[0].message.content or ""
-            data = _extract_json(retry_raw)
-            return SuggestResponse.model_validate(data)
+            return _parse(retry_raw, req)
         except Exception as retry_exc:
             logger.error("Retry also failed: %s", retry_exc)
             raise
+
+
+def _parse(raw: str, req: SuggestRequest) -> SuggestResponse:
+    """Parse a raw model response into a sanitized SuggestResponse."""
+    data = _extract_json(raw)
+    # If the LLM flagged a rejection, return a minimal valid response.
+    if data.get("rejection"):
+        return SuggestResponse(rejection=data["rejection"])
+    return _sanitize(SuggestResponse.model_validate(data), req)

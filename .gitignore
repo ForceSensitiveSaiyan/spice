@@ -9,6 +9,10 @@ dist/
 *.egg-info/
 .pytest_cache/
 *.db
+*.db-wal
+*.db-shm
+apps/api/spice/data/
+*.tsbuildinfo
 playwright-report/
 test-results/
 

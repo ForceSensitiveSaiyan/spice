@@ -2,6 +2,30 @@
 
 All notable changes to SPICE are documented here.
 
+## [0.7.0] - 2026-07-01
+
+### Added
+- Generation cache: identical requests are served from SQLite (`generations` table) instead of re-calling OpenAI — near-instant and free on repeats
+- OpenAI JSON mode (`response_format=json_object`) for reliable structured output
+- Numeric guardrails: prep time clamped to the requested ceiling, implausible calorie estimates dropped
+- Prompt-injection guard: ingredient/pantry/feedback text is treated as data, never instructions
+- Warm visual identity: Space Grotesk display font, amber-glow canvas, and a chilli-red "live cooking" accent in Cook Mode
+- Inviting empty state, a compact post-generation input summary, and a sticky mobile CTA
+- 4 new API tests (generation-cache round-trip, ingredient normalization)
+
+### Changed
+- Default OpenAI model `gpt-4o-mini` → `gpt-4o`
+- Combo signatures are normalized (case/whitespace) on both client and server so community counts no longer fragment across spellings
+- API proxy strips hop-by-hop / `Expect` headers (fixes 502s from clients that send `Expect: 100-continue`)
+- Full look-and-feel refresh: branded amber-gradient primary actions, card elevation, amber-tinted selections, coherent numbered Upgrade Ladder tiers, higher muted-text contrast
+- Results render full-width once a plan exists, removing desktop dead space
+- DB reads now share the write lock for consistency
+- Web package version aligned with the API (0.7.0)
+
+### Fixed
+- Non-food rejections no longer pollute the community combo table
+- Retry path now handles rejections consistently with the first parse
+
 ## [0.6.0] - 2026-03-06
 
 ### Added

@@ -112,7 +112,7 @@ See `packages/shared/schemas.py` for the full schema.
 | Variable | Default | Description |
 |---|---|---|
 | `OPENAI_API_KEY` | — | OpenAI key (omit for mock mode) |
-| `OPENAI_MODEL` | `gpt-4o-mini` | OpenAI model to use for suggestions |
+| `OPENAI_MODEL` | `gpt-4o` | OpenAI model to use for suggestions |
 | `CORS_ORIGINS` | `http://localhost:3737` | Comma-separated allowed origins |
 | `RATE_LIMIT_MAX` | `20` | Max requests per IP per window |
 | `RATE_LIMIT_WINDOW` | `3600` | Rate limit window in seconds |

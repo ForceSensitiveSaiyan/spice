@@ -1,10 +1,19 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Space_Grotesk } from "next/font/google";
 import { Toaster } from "sonner";
 import ErrorBoundary from "./components/ErrorBoundary";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"], display: "swap" });
+
+// Characterful display face for the wordmark, headings, and result titles —
+// exposed as `--font-space` and surfaced through the `font-display` utility.
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  display: "swap",
+  weight: ["500", "600", "700"],
+  variable: "--font-space",
+});
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3737";
 
@@ -52,7 +61,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           />
         )}
       </head>
-      <body className={`${inter.className} bg-surface text-stone-900 dark:bg-surface-dark dark:text-stone-100 min-h-screen`}>
+      <body className={`${inter.className} ${spaceGrotesk.variable} app-bg text-stone-900 dark:text-stone-100 min-h-screen`}>
         <ErrorBoundary>
           {children}
         </ErrorBoundary>

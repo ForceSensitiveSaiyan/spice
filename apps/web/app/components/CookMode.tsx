@@ -114,8 +114,12 @@ export default function CookMode({ steps, active, onActiveChange }: CookModeProp
     return (
       <button
         onClick={() => onActiveChange(true)}
-        className="w-full border border-dashed border-amber-400/50 dark:border-amber-500/40 text-amber-700 dark:text-amber-400 py-3 rounded-lg text-sm font-medium hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors duration-150"
+        className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-amber-500 to-orange-600 text-white py-3 rounded-lg text-sm font-bold tracking-wide hover:from-amber-400 hover:to-orange-500 active:scale-[0.99] transition-all duration-150 shadow-lg shadow-orange-600/25"
       >
+        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
         Start Cooking Mode
       </button>
     );
@@ -128,11 +132,11 @@ export default function CookMode({ steps, active, onActiveChange }: CookModeProp
       {/* Timer header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
         <div className="flex items-center gap-3">
-          <span role="timer" aria-label={`Elapsed time: ${fmtTime(elapsed)}`} className="text-2xl font-mono font-bold text-amber-600 dark:text-amber-400">
+          <span role="timer" aria-label={`Elapsed time: ${fmtTime(elapsed)}`} className="text-2xl font-mono font-bold text-red-600 dark:text-red-400">
             {fmtTime(elapsed)}
           </span>
-          <span className="text-sm text-stone-400 dark:text-stone-500">/ {fmtTime(totalTime)}</span>
-          <span className="text-xs text-stone-400 dark:text-stone-500 font-medium">
+          <span className="text-sm text-stone-500 dark:text-stone-400">/ {fmtTime(totalTime)}</span>
+          <span className="text-xs text-stone-500 dark:text-stone-400 font-medium">
             Step {currentIdx + 1}/{steps.length}
           </span>
         </div>
@@ -196,7 +200,7 @@ export default function CookMode({ steps, active, onActiveChange }: CookModeProp
       {/* Progress bar */}
       <div className="h-1.5 bg-stone-100 dark:bg-white/10 rounded-full mb-4 overflow-hidden">
         <div
-          className="h-full bg-amber-500 rounded-full transition-all duration-1000"
+          className="h-full bg-red-500 rounded-full transition-all duration-1000"
           style={{ width: `${Math.min((elapsed / totalTime) * 100, 100)}%` }}
         />
       </div>
@@ -211,13 +215,13 @@ export default function CookMode({ steps, active, onActiveChange }: CookModeProp
               key={i}
               className={`flex gap-3 p-2 rounded-lg transition-colors ${
                 isCurrent
-                  ? "bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700"
+                  ? "bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800/60"
                   : isPast
                   ? "opacity-50"
                   : ""
               }`}
             >
-              <span className={`font-mono min-w-[3.5rem] text-amber-600 dark:text-amber-400 pt-0.5 ${textSize}`}>
+              <span className={`font-mono min-w-[3.5rem] pt-0.5 ${textSize} ${isCurrent ? "text-red-600 dark:text-red-400" : "text-amber-600 dark:text-amber-400"}`}>
                 {fmtTime(step.t_seconds)}
               </span>
               <div className="flex-1">
@@ -225,11 +229,11 @@ export default function CookMode({ steps, active, onActiveChange }: CookModeProp
                   {step.instruction}
                 </span>
                 {step.tip && (
-                  <p className={`text-stone-400 dark:text-stone-500 mt-0.5 ${largeText ? "text-sm" : "text-xs"}`}>{step.tip}</p>
+                  <p className={`text-stone-500 dark:text-stone-400 mt-0.5 ${largeText ? "text-sm" : "text-xs"}`}>{step.tip}</p>
                 )}
               </div>
               {isCurrent && (
-                <span className="text-amber-500 dark:text-amber-400 text-xs font-medium self-center">
+                <span className="text-red-500 dark:text-red-400 text-xs font-bold self-center animate-pulse">
                   NOW
                 </span>
               )}

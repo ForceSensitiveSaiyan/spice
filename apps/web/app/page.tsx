@@ -108,20 +108,20 @@ function Pill({ active, onClick, children, accent }: {
   const base = "text-xs px-3 py-1.5 rounded-full border transition-colors duration-150 min-h-[36px]";
   if (accent) {
     return (
-      <button onClick={onClick} className={`${base} border-amber-400/40 dark:border-amber-500/40 text-amber-700 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20`}>
+      <button onClick={onClick} className={`${base} border-amber-400/50 dark:border-amber-500/40 text-amber-700 dark:text-amber-400 font-medium hover:bg-amber-50 dark:hover:bg-amber-900/20`}>
         {children}
       </button>
     );
   }
   if (active) {
     return (
-      <button onClick={onClick} className={`${base} bg-[#F5F5F5] dark:bg-[#F5F5F5] text-[#111111] dark:text-[#111111] border-transparent font-medium`}>
+      <button onClick={onClick} className={`${base} bg-amber-100 text-amber-900 border-amber-300 dark:bg-amber-500/15 dark:text-amber-300 dark:border-amber-500/40 font-semibold`}>
         {children}
       </button>
     );
   }
   return (
-    <button onClick={onClick} className={`${base} border-white/10 text-stone-500 dark:text-[rgba(245,245,245,0.5)] hover:text-stone-800 dark:hover:text-[#F5F5F5] hover:border-white/20`}>
+    <button onClick={onClick} className={`${base} border-stone-300/70 dark:border-white/10 text-stone-500 dark:text-[rgba(245,245,245,0.65)] hover:text-stone-800 dark:hover:text-[#F5F5F5] hover:border-amber-400/50 dark:hover:border-amber-500/40`}>
       {children}
     </button>
   );
@@ -175,6 +175,7 @@ export default function Home() {
   const [communityStats, setCommunityStats] = useState<CommunityStatsType | null>(null);
   const [loading, setLoading] = useState(false);
   const [cookModeActive, setCookModeActive] = useState(false);
+  const [editingInputs, setEditingInputs] = useState(false);
   const resultHeadingRef = useRef<HTMLHeadingElement>(null);
 
   // Loading message rotation
@@ -325,6 +326,7 @@ export default function Home() {
     setResult(null);
     setCommunityStats(null);
     setCookModeActive(false);
+    setEditingInputs(false);
 
     const sig = makeSignature(ingredients, flavourMode);
     const feedbackHistory = getFeedback(sig);
@@ -356,6 +358,9 @@ export default function Home() {
   }
 
   const feedbackSig = makeSignature(ingredients, flavourMode);
+  // After a plan is generated, fold the inputs into a compact summary so the
+  // results own the space; "Edit" re-expands the full controls.
+  const inputsCollapsed = !!result && !editingInputs;
 
   return (
     <>
@@ -370,13 +375,13 @@ export default function Home() {
       </a>
 
       {/* ── Top bar ──────────────────────────────────────────── */}
-      <div className="sticky top-0 z-40 -mx-4 px-4 py-3 mb-2 backdrop-blur-md bg-white/80 dark:bg-[#111111]/80 border-b border-stone-200/50 dark:border-white/5">
+      <div className="sticky top-0 z-40 -mx-4 px-4 py-3 mb-2 backdrop-blur-md bg-surface/80 dark:bg-surface-dark/80 border-b border-stone-200/50 dark:border-white/5">
       <div className="flex items-center justify-between">
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
+          <h1 className="font-display text-2xl sm:text-3xl font-bold tracking-tight">
             SP
             <span
               ref={headerIRef}
-              className="text-amber-600 dark:text-amber-400"
+              className="text-amber-500 dark:text-amber-400"
               style={{ fontSize: "110%", lineHeight: 1 }}
             >
               I
@@ -386,7 +391,7 @@ export default function Home() {
         <div className="flex items-center gap-1.5">
           <button
             onClick={() => setRecipesOpen(true)}
-            className="p-2 rounded-lg text-stone-400 dark:text-[rgba(245,245,245,0.5)] hover:text-stone-800 dark:hover:text-[#F5F5F5] hover:bg-stone-100 dark:hover:bg-white/5 transition-colors duration-150"
+            className="p-2 rounded-lg text-stone-500 dark:text-[rgba(245,245,245,0.65)] hover:text-stone-800 dark:hover:text-[#F5F5F5] hover:bg-stone-100 dark:hover:bg-white/5 transition-colors duration-150"
             aria-label="Saved recipes"
           >
             <svg className="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -396,7 +401,7 @@ export default function Home() {
           <button
             onClick={() => setSettingsOpen(true)}
             ref={settingsButtonRef}
-            className="p-2 rounded-lg text-stone-400 dark:text-[rgba(245,245,245,0.5)] hover:text-stone-800 dark:hover:text-[#F5F5F5] hover:bg-stone-100 dark:hover:bg-white/5 transition-colors duration-150"
+            className="p-2 rounded-lg text-stone-500 dark:text-[rgba(245,245,245,0.65)] hover:text-stone-800 dark:hover:text-[#F5F5F5] hover:bg-stone-100 dark:hover:bg-white/5 transition-colors duration-150"
             aria-label="Settings"
           >
             <svg className="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -406,7 +411,7 @@ export default function Home() {
           </button>
           <button
             onClick={toggleDark}
-            className="p-2 rounded-lg text-stone-400 dark:text-[rgba(245,245,245,0.5)] hover:text-stone-800 dark:hover:text-[#F5F5F5] hover:bg-stone-100 dark:hover:bg-white/5 transition-colors duration-150"
+            className="p-2 rounded-lg text-stone-500 dark:text-[rgba(245,245,245,0.65)] hover:text-stone-800 dark:hover:text-[#F5F5F5] hover:bg-stone-100 dark:hover:bg-white/5 transition-colors duration-150"
             aria-label={dark ? "Switch to light mode" : "Switch to dark mode"}
           >
             {dark ? (
@@ -424,10 +429,42 @@ export default function Home() {
       </div>
 
       {/* ── Card stack ───────────────────────────────────────── */}
-      <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] lg:gap-4 lg:items-start">
+      {/* Two columns while composing; a single full-width stack once a plan exists. */}
+      <div className={inputsCollapsed ? "space-y-3" : "lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] lg:gap-4 lg:items-start"}>
 
       {/* ── Left column: inputs ──────────────────────────────── */}
-      <div className="space-y-3 lg:sticky lg:top-16">
+      <div className={inputsCollapsed ? "" : "space-y-3 lg:sticky lg:top-16"}>
+
+        {inputsCollapsed ? (
+        /* Compact summary — inputs fold away once a plan exists */
+        <Card>
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <h3 className="text-[11px] font-semibold uppercase tracking-widest text-stone-500 dark:text-[rgba(245,245,245,0.65)] mb-2">Cooking with</h3>
+              <div className="flex flex-wrap gap-1.5">
+                {ingredients.map((item) => (
+                  <span key={item} className="bg-amber-100 dark:bg-amber-500/15 text-amber-800 dark:text-amber-300 px-2.5 py-0.5 rounded-full text-xs">
+                    {item}
+                  </span>
+                ))}
+              </div>
+            </div>
+            <button
+              onClick={() => setEditingInputs(true)}
+              className="shrink-0 text-xs px-3 py-1.5 rounded-lg border border-stone-300/70 dark:border-white/10 text-stone-600 dark:text-[rgba(245,245,245,0.7)] hover:border-amber-400/60 hover:text-amber-700 dark:hover:text-amber-300 transition-colors min-h-[36px]"
+            >
+              Edit
+            </button>
+          </div>
+          <button
+            onClick={handleSubmit}
+            disabled={loading}
+            className="w-full mt-3 py-2.5 rounded-lg text-sm font-semibold border border-stone-300/70 dark:border-white/10 text-stone-700 dark:text-[#F5F5F5] hover:border-amber-400/60 hover:text-amber-700 dark:hover:text-amber-300 disabled:opacity-60 transition-colors"
+          >
+            {loading ? LOADING_MESSAGES[loadingMsgIdx] : "↻ Regenerate"}
+          </button>
+        </Card>
+        ) : (<>
 
         {/* Card 1: Ingredients */}
         <div ref={ingredientsCardRef}>
@@ -441,7 +478,7 @@ export default function Home() {
             />
             <button
               onClick={() => addIngredient()}
-              className="bg-[#F5F5F5] dark:bg-[#F5F5F5] text-[#111111] px-4 py-2 rounded-lg text-sm font-medium hover:bg-white dark:hover:bg-white transition-colors duration-150"
+              className="bg-amber-500 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-amber-600 active:scale-[0.98] transition-all duration-150 shadow-sm shadow-amber-500/25"
             >
               Add
             </button>
@@ -498,7 +535,7 @@ export default function Home() {
           {/* Constraints rows */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-[11px] font-medium uppercase tracking-wide text-stone-400 dark:text-[rgba(245,245,245,0.4)] mb-1.5">Diet</label>
+              <label className="block text-[11px] font-medium uppercase tracking-wide text-stone-500 dark:text-[rgba(245,245,245,0.6)] mb-1.5">Diet</label>
               <select
                 value={diet}
                 onChange={(e) => setDiet(e.target.value)}
@@ -510,7 +547,7 @@ export default function Home() {
               </select>
             </div>
             <div>
-              <label className="block text-[11px] font-medium uppercase tracking-wide text-stone-400 dark:text-[rgba(245,245,245,0.4)] mb-1.5">Time</label>
+              <label className="block text-[11px] font-medium uppercase tracking-wide text-stone-500 dark:text-[rgba(245,245,245,0.6)] mb-1.5">Time</label>
               <div className="flex flex-wrap gap-1.5">
                 {TIME_OPTIONS.map((t) => (
                   <Pill key={t} active={timeMinutes === t} onClick={() => setTimeMinutes(t)}>
@@ -520,7 +557,7 @@ export default function Home() {
               </div>
             </div>
             <div>
-              <label className="block text-[11px] font-medium uppercase tracking-wide text-stone-400 dark:text-[rgba(245,245,245,0.4)] mb-1.5">Spice level</label>
+              <label className="block text-[11px] font-medium uppercase tracking-wide text-stone-500 dark:text-[rgba(245,245,245,0.6)] mb-1.5">Spice level</label>
               <select
                 value={spiceLevel}
                 onChange={(e) => setSpiceLevel(e.target.value)}
@@ -532,7 +569,7 @@ export default function Home() {
               </select>
             </div>
             <div>
-              <label className="block text-[11px] font-medium uppercase tracking-wide text-stone-400 dark:text-[rgba(245,245,245,0.4)] mb-1.5">Equipment</label>
+              <label className="block text-[11px] font-medium uppercase tracking-wide text-stone-500 dark:text-[rgba(245,245,245,0.6)] mb-1.5">Equipment</label>
               <div className="flex flex-wrap gap-1.5">
                 {EQUIPMENT_OPTIONS.map((eq) => (
                   <Pill key={eq} active={equipment.includes(eq)} onClick={() => toggleEquipment(eq)}>
@@ -545,16 +582,17 @@ export default function Home() {
         </Card>
         </div>
 
-        {/* Submit */}
+        {/* Submit (desktop; mobile uses the sticky bar below) */}
         <button
           onClick={handleSubmit}
           disabled={loading}
           ref={generateButtonRef}
-          className="w-full bg-[#F5F5F5] dark:bg-[#F5F5F5] text-[#111111] py-3 rounded-xl text-sm font-semibold hover:bg-white dark:hover:bg-white disabled:opacity-50 transition-colors duration-150"
+          className="hidden lg:block w-full bg-gradient-to-r from-amber-500 to-orange-600 text-white py-3.5 rounded-xl text-sm font-bold tracking-wide hover:from-amber-400 hover:to-orange-500 active:scale-[0.99] disabled:opacity-60 disabled:active:scale-100 transition-all duration-150 shadow-lg shadow-orange-600/25"
         >
           {loading ? LOADING_MESSAGES[loadingMsgIdx] : "What can I make?"}
         </button>
 
+        </>)}
       </div>{/* end left column */}
 
       {/* ── Right column: results ────────────────────────────── */}
@@ -571,10 +609,21 @@ export default function Home() {
         <div id="results" aria-live="polite" ref={resultsRef}>
         {!loading && !result && (
           <Card className="animate-fade-in-up">
-            <SectionHeader>Results</SectionHeader>
-            <p className="text-sm text-stone-500 dark:text-[rgba(245,245,245,0.6)]">
-              Your plan will appear here after you generate a recipe.
-            </p>
+            <div className="flex flex-col items-center text-center py-10 px-4">
+              <div className="mb-4 grid place-items-center w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-600 shadow-lg shadow-orange-600/25">
+                <svg className="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 3c2.5 2 3 4 3 6a3 3 0 11-6 0c0-.8.2-1.5.5-2.2C8 8 7 10 7 12.5a5 5 0 1010 0c0-4-2.5-7-5-9.5z" />
+                </svg>
+              </div>
+              <h3 className="font-display text-lg font-bold text-stone-800 dark:text-[#F5F5F5]">
+                What&rsquo;s in your kitchen?
+              </h3>
+              <p className="text-sm text-stone-500 dark:text-[rgba(245,245,245,0.6)] mt-1.5 max-w-xs">
+                Add a few ingredients, pick a flavour, and hit
+                <span className="font-semibold text-amber-600 dark:text-amber-400"> What can I make?</span>
+                &nbsp;— your step-by-step plan lands right here.
+              </p>
+            </div>
           </Card>
         )}
         {result && (
@@ -585,7 +634,7 @@ export default function Home() {
                   <p className="text-lg font-medium text-stone-600 dark:text-[#F5F5F5]">
                     {result.rejection}
                   </p>
-                  <p className="text-sm text-stone-400 dark:text-[rgba(245,245,245,0.5)] mt-2">
+                  <p className="text-sm text-stone-500 dark:text-[rgba(245,245,245,0.65)] mt-2">
                     Try adding some actual food ingredients.
                   </p>
                 </div>
@@ -594,28 +643,28 @@ export default function Home() {
 
             {/* Result header card */}
             <Card className="animate-fade-in-up">
-              <h2 ref={resultHeadingRef} tabIndex={-1} className="text-xl sm:text-2xl font-bold outline-none leading-tight">{result.title}</h2>
-              <div className="flex flex-wrap gap-1.5 mt-2">
-                <span className="text-[10px] bg-stone-100 dark:bg-white/10 text-stone-500 dark:text-[rgba(245,245,245,0.6)] px-2 py-0.5 rounded-full">
+              <h2 ref={resultHeadingRef} tabIndex={-1} className="font-display text-xl sm:text-2xl font-bold outline-none leading-tight">{result.title}</h2>
+              <div className="flex flex-wrap gap-1.5 mt-2.5">
+                {result.flavour_mode && (
+                  <span className="text-[10px] font-medium bg-amber-100 dark:bg-amber-500/15 text-amber-800 dark:text-amber-300 px-2 py-0.5 rounded-full">
+                    {FLAVOUR_MODES.find((fm) => fm.value === result.flavour_mode)?.label || result.flavour_mode}
+                  </span>
+                )}
+                <span className="text-[10px] bg-stone-100 dark:bg-white/10 text-stone-600 dark:text-[rgba(245,245,245,0.7)] px-2 py-0.5 rounded-full">
                   ~{result.prep_time_minutes} min
                 </span>
-                <span className="text-[10px] bg-stone-100 dark:bg-white/10 text-stone-500 dark:text-[rgba(245,245,245,0.6)] px-2 py-0.5 rounded-full">
+                <span className="text-[10px] bg-stone-100 dark:bg-white/10 text-stone-600 dark:text-[rgba(245,245,245,0.7)] px-2 py-0.5 rounded-full">
                   {ingredients.length} ingredients
                 </span>
                 {result.calories_estimate && (
-                  <span className="text-[10px] bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 px-2 py-0.5 rounded-full">
+                  <span className="text-[10px] bg-stone-100 dark:bg-white/10 text-stone-600 dark:text-[rgba(245,245,245,0.7)] px-2 py-0.5 rounded-full">
                     ~{result.calories_estimate} cal
-                  </span>
-                )}
-                {result.flavour_mode && (
-                  <span className="text-[10px] bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 px-2 py-0.5 rounded-full">
-                    {FLAVOUR_MODES.find((fm) => fm.value === result.flavour_mode)?.label || result.flavour_mode}
                   </span>
                 )}
               </div>
 
               {result.pantry_used.length > 0 && (
-                <p className="text-xs text-stone-400 dark:text-[rgba(245,245,245,0.4)] mt-2">
+                <p className="text-xs text-stone-500 dark:text-[rgba(245,245,245,0.6)] mt-2">
                   Using pantry staples: {result.pantry_used.join(", ")}
                 </p>
               )}
@@ -665,7 +714,7 @@ export default function Home() {
                       <div>
                         <span className="text-sm">{step.instruction}</span>
                         {step.tip && (
-                          <p className="text-xs text-stone-400 dark:text-[rgba(245,245,245,0.4)] mt-0.5">{step.tip}</p>
+                          <p className="text-xs text-stone-500 dark:text-[rgba(245,245,245,0.6)] mt-0.5">{step.tip}</p>
                         )}
                       </div>
                     </li>
@@ -678,7 +727,7 @@ export default function Home() {
                     <SectionHeader>Notes</SectionHeader>
                     <ul className="space-y-1">
                       {result.notes.map((n, i) => (
-                        <li key={i} className="text-sm text-stone-500 dark:text-[rgba(245,245,245,0.5)]">{n}</li>
+                        <li key={i} className="text-sm text-stone-500 dark:text-[rgba(245,245,245,0.65)]">{n}</li>
                       ))}
                     </ul>
                   </div>
@@ -686,7 +735,7 @@ export default function Home() {
 
                 {/* Safety disclaimer inline */}
                 {result.safety.missing_ingredients.length > 0 && (
-                  <p className="text-xs text-stone-400 dark:text-[rgba(245,245,245,0.35)] mt-3">
+                  <p className="text-xs text-stone-500 dark:text-[rgba(245,245,245,0.55)] mt-3">
                     Assumed available: {result.safety.missing_ingredients.join(", ")}.{" "}
                     {result.safety.disclaimer}
                   </p>
@@ -757,7 +806,7 @@ export default function Home() {
         stats={personalStats ?? undefined}
       />
 
-      <footer className="mt-8 py-4 text-center text-xs text-stone-400 dark:text-[rgba(245,245,245,0.3)]">
+      <footer className="mt-8 py-4 text-center text-xs text-stone-500 dark:text-[rgba(245,245,245,0.5)]">
         &copy; 2026{" "}
         <a
           href="https://aidoo.biz"
@@ -775,7 +824,23 @@ export default function Home() {
           Feedback
         </a>
       </footer>
+
+      {/* Spacer so the fixed mobile CTA never covers the footer */}
+      {!inputsCollapsed && <div className="h-20 lg:hidden" aria-hidden="true" />}
     </main>
+
+    {/* Sticky mobile CTA — keeps the primary action reachable without scrolling */}
+    {!inputsCollapsed && (
+      <div className="lg:hidden fixed bottom-0 inset-x-0 z-40 px-4 py-3 bg-surface/90 dark:bg-surface-dark/90 backdrop-blur-md border-t border-stone-200/60 dark:border-white/10">
+        <button
+          onClick={handleSubmit}
+          disabled={loading}
+          className="w-full bg-gradient-to-r from-amber-500 to-orange-600 text-white py-3 rounded-xl text-sm font-bold tracking-wide disabled:opacity-60 shadow-lg shadow-orange-600/25"
+        >
+          {loading ? LOADING_MESSAGES[loadingMsgIdx] : "What can I make?"}
+        </button>
+      </div>
+    )}
     </div>
 
     <TutorialOverlay

@@ -8,6 +8,8 @@ from spice.db import (
     combo_exists,
     record_feedback,
     get_feedback_breakdown,
+    get_cached_generation,
+    store_generation,
 )
 
 
@@ -16,6 +18,31 @@ def test_make_combo_hash_is_deterministic():
     sig2, h2 = make_combo_hash(["a", "b"], "umami")
     assert sig1 == sig2
     assert h1 == h2
+
+
+def test_make_combo_hash_normalizes_case_and_whitespace():
+    """Case and surrounding whitespace must not fragment a combo."""
+    sig1, h1 = make_combo_hash(["  Onion ", "EGG"], "umami")
+    sig2, h2 = make_combo_hash(["egg", "onion"], "umami")
+    assert sig1 == "egg,onion|umami"
+    assert h1 == h2
+
+
+def test_make_combo_hash_collapses_internal_whitespace():
+    sig, _ = make_combo_hash(["spring   onions"], None)
+    assert sig == "spring onions|none"
+
+
+def test_generation_cache_round_trip():
+    assert get_cached_generation("cache_key_a") is None
+    store_generation("cache_key_a", '{"title": "cached"}')
+    assert get_cached_generation("cache_key_a") == '{"title": "cached"}'
+
+
+def test_generation_cache_upserts():
+    store_generation("cache_key_b", '{"v": 1}')
+    store_generation("cache_key_b", '{"v": 2}')
+    assert get_cached_generation("cache_key_b") == '{"v": 2}'
 
 
 def test_make_combo_hash_sorts_ingredients():

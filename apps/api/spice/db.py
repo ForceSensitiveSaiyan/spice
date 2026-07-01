@@ -35,6 +35,12 @@ def init_db() -> None:
             created_at    TEXT NOT NULL DEFAULT (datetime('now'))
         );
         CREATE INDEX IF NOT EXISTS idx_feedback_combo ON feedback(combo_hash);
+
+        CREATE TABLE IF NOT EXISTS generations (
+            cache_key     TEXT PRIMARY KEY,
+            response_json TEXT NOT NULL,
+            created_at    TEXT NOT NULL DEFAULT (datetime('now'))
+        );
     """)
     _conn.commit()
 
@@ -53,9 +59,19 @@ def _get_conn() -> sqlite3.Connection:
     return _conn
 
 
+def normalize_ingredient(name: str) -> str:
+    """Lowercase, trim, and collapse internal whitespace.
+
+    Must stay in lockstep with the frontend `normalizeIngredient` in
+    lib/feedback.ts so combo signatures match across client and server.
+    """
+    return " ".join(name.strip().lower().split())
+
+
 def make_combo_hash(ingredients: list[str], flavour_mode: str | None) -> tuple[str, str]:
     """Return (combo_sig, combo_hash). Matches frontend makeSignature exactly."""
-    sig = ",".join(sorted(ingredients)) + "|" + (flavour_mode or "none")
+    normalized = sorted(normalize_ingredient(i) for i in ingredients)
+    sig = ",".join(normalized) + "|" + (flavour_mode or "none")
     h = hashlib.sha256(sig.encode()).hexdigest()
     return sig, h
 
@@ -78,7 +94,8 @@ def record_combo(combo_sig: str, combo_hash: str) -> int:
 
 def combo_exists(combo_hash: str) -> bool:
     conn = _get_conn()
-    row = conn.execute("SELECT 1 FROM combos WHERE combo_hash = ?", (combo_hash,)).fetchone()
+    with _lock:
+        row = conn.execute("SELECT 1 FROM combos WHERE combo_hash = ?", (combo_hash,)).fetchone()
     return row is not None
 
 
@@ -95,12 +112,37 @@ def record_feedback(combo_hash: str, feedback_type: str) -> None:
 def get_feedback_breakdown(combo_hash: str) -> tuple[dict[str, int], int]:
     """Return (percentage_dict, total_count) for a combo's feedback."""
     conn = _get_conn()
-    rows = conn.execute(
-        "SELECT feedback_type, COUNT(*) FROM feedback WHERE combo_hash = ? GROUP BY feedback_type",
-        (combo_hash,),
-    ).fetchall()
+    with _lock:
+        rows = conn.execute(
+            "SELECT feedback_type, COUNT(*) FROM feedback WHERE combo_hash = ? GROUP BY feedback_type",
+            (combo_hash,),
+        ).fetchall()
     total = sum(r[1] for r in rows)
     if total == 0:
         return {}, 0
     breakdown = {r[0]: round(r[1] / total * 100) for r in rows}
     return breakdown, total
+
+
+def get_cached_generation(cache_key: str) -> str | None:
+    """Return a previously stored generation JSON blob, or None on a miss."""
+    conn = _get_conn()
+    with _lock:
+        row = conn.execute(
+            "SELECT response_json FROM generations WHERE cache_key = ?", (cache_key,)
+        ).fetchone()
+    return row[0] if row else None
+
+
+def store_generation(cache_key: str, response_json: str) -> None:
+    """Persist a generation JSON blob under its full-request cache key."""
+    conn = _get_conn()
+    with _lock:
+        conn.execute(
+            """INSERT INTO generations (cache_key, response_json)
+               VALUES (?, ?)
+               ON CONFLICT(cache_key) DO UPDATE
+               SET response_json = excluded.response_json, created_at = datetime('now')""",
+            (cache_key, response_json),
+        )
+        conn.commit()

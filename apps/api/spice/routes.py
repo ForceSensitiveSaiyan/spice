@@ -55,6 +55,10 @@ async def suggest(req: SuggestRequest, request: Request) -> SuggestResponse:
     try:
         result = await get_suggestion(req)
 
+        # Non-food rejections aren't real combos — don't pollute the table.
+        if result.rejection:
+            return result
+
         # Track combo and attach community stats
         sig, h = make_combo_hash(req.ingredients, req.constraints.flavour_mode)
         count = record_combo(sig, h)
@@ -69,7 +73,7 @@ async def suggest(req: SuggestRequest, request: Request) -> SuggestResponse:
     except ValidationError:
         logger.exception("Validation error in suggestion response")
         raise HTTPException(status_code=422, detail="Invalid response from suggestion engine")
-    except RuntimeError as exc:
+    except RuntimeError:
         logger.exception("Configuration error")
         raise HTTPException(status_code=503, detail="Service temporarily unavailable")
     except asyncio.TimeoutError:
